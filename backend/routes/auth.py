@@ -6,8 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from pydantic import BaseModel
 
-from ..database import get_db
-from ..models import User, Integration
+from database import get_db
+from models import User, Integration
 
 router = APIRouter()
 logger = logging.getLogger(__name__)

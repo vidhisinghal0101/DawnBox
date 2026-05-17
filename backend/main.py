@@ -13,8 +13,8 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 
-from .database import engine, Base, get_db
-from .routes import auth, feed
+from database import engine, Base, get_db
+from routes import auth, feed
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -53,7 +53,7 @@ async def reset_db():
 async def db_peek(db: AsyncSession = Depends(get_db)):
     """Debug endpoint to see if data is actually in the DB."""
     from sqlalchemy import func
-    from .models import Item, User, Integration
+    from models import Item, User, Integration
     
     # Count items per user
     item_result = await db.execute(select(Item.user_id, func.count(Item.id)).group_by(Item.user_id))
