@@ -23,6 +23,14 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-3">
             <button
+              onClick={() => signIn('credentials', { callbackUrl: '/' })}
+              className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white hover:opacity-90 transition-all font-semibold rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] group mb-2"
+            >
+              <BrainCircuit size={20} className="text-white group-hover:-translate-y-0.5 transition-transform" />
+              <span>Enter in Demo Mode (Instant Access)</span>
+            </button>
+
+            <button
               onClick={() => signIn('github', { callbackUrl: '/' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black hover:bg-zinc-200 transition-all font-semibold rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.1)] group"
             >
