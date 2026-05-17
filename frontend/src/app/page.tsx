@@ -35,7 +35,7 @@ export default function Home() {
     triggerPipeline(userId);
   };
 
-  if (status === 'loading') {
+  if (status === 'loading' || status === 'unauthenticated') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-zinc-500" />
