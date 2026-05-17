@@ -3,8 +3,8 @@ import datetime
 
 import httpx
 import datetime
-from ..database import AsyncSessionLocal
-from ..models import Integration
+from database import AsyncSessionLocal
+from models import Integration
 from sqlalchemy import select
 
 async def fetch_data(state: AgentState):
