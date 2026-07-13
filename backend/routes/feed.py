@@ -43,6 +43,20 @@ async def get_briefing(user_id: str, db: AsyncSession = Depends(get_db)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.put("/items/{item_id}/resolve")
+async def resolve_item(item_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        result = await db.execute(select(Item).where(Item.id == item_id))
+        item = result.scalars().first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        item.is_resolved = True
+        await db.commit()
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f"Error resolving item {item_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.post("/trigger-pipeline/{user_id}")
 async def trigger_pipeline(user_id: str, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     try:

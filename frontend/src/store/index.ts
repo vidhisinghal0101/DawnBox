@@ -16,6 +16,7 @@ export interface FeedItem {
   ai_explanation: string;
   timestamp: string;
   url: string;
+  is_resolved: boolean;
 }
 
 interface FeedStore {
@@ -32,6 +33,7 @@ interface FeedStore {
   triggerFetch: (userId: string) => Promise<void>;
   triggerAnalyze: (userId: string) => Promise<void>;
   connectIntegration: (userId: string, toolName: string) => Promise<void>;
+  resolveItem: (itemId: number) => Promise<void>;
   clearError: () => void;
 }
 
@@ -174,6 +176,27 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
     } catch {
       set({ error: 'Failed to trigger analysis.', loading: false, analyzeStatus: 'error' });
       setTimeout(() => set({ analyzeStatus: 'idle', error: null }), 5000);
+    }
+  },
+
+  resolveItem: async (itemId: number) => {
+    // Optimistically update UI
+    set(state => ({
+      items: state.items.map(item => 
+        item.id === itemId ? { ...item, is_resolved: true } : item
+      )
+    }));
+
+    try {
+      await axios.put(`${API_BASE_URL}/feed/items/${itemId}/resolve`);
+    } catch (err) {
+      // Revert if failed
+      console.error('Failed to resolve item:', err);
+      set(state => ({
+        items: state.items.map(item => 
+          item.id === itemId ? { ...item, is_resolved: false } : item
+        )
+      }));
     }
   },
 }));

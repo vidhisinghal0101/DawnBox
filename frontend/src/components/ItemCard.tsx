@@ -1,7 +1,7 @@
 import React from 'react';
-import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2, Check } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { FeedItem } from '../store';
+import { FeedItem, useFeedStore } from '../store';
 
 const GithubSVG = ({ size = 20 }: { size?: number }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -11,6 +11,7 @@ const GithubSVG = ({ size = 20 }: { size?: number }) => (
 
 export function ItemCard({ item }: { item: FeedItem }) {
   const isGithub = item.tool_name === 'github';
+  const resolveItem = useFeedStore(state => state.resolveItem);
   
   const getTagStyle = (tag: string) => {
     switch (tag) {
@@ -48,10 +49,17 @@ export function ItemCard({ item }: { item: FeedItem }) {
     window.open(item.url, '_blank', 'noopener,noreferrer');
   };
 
+  const handleResolve = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    resolveItem(item.id);
+  };
+
   return (
     <div 
       onClick={handleClick}
-      className="glass-panel rounded-xl p-5 hover:bg-zinc-800/80 transition-all group cursor-pointer border border-transparent hover:border-zinc-700/50"
+      className={`glass-panel rounded-xl p-5 hover:bg-zinc-800/80 transition-all group cursor-pointer border ${
+        item.is_resolved ? 'border-green-500/20 opacity-75' : 'border-transparent hover:border-zinc-700/50'
+      }`}
     >
       <div className="flex justify-between items-start mb-3">
         <div className="flex items-center gap-4">
@@ -76,10 +84,24 @@ export function ItemCard({ item }: { item: FeedItem }) {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <div className="text-right">
+          <div className="flex flex-col items-end gap-2">
             <span className={`text-xs font-bold px-2 py-1 rounded-md ${getScoreColor(item.priority_score)} bg-black/40`}>
               Score: {item.priority_score}/10
             </span>
+            {!item.is_resolved ? (
+              <button 
+                onClick={handleResolve}
+                className="text-xs flex items-center gap-1.5 font-medium px-2 py-1.5 rounded-md bg-zinc-800 hover:bg-green-500/20 text-zinc-400 hover:text-green-400 transition-colors border border-zinc-700 hover:border-green-500/30"
+              >
+                <Check size={14} />
+                Mark as Done
+              </button>
+            ) : (
+              <span className="text-xs flex items-center gap-1.5 font-medium px-2 py-1 rounded-md bg-green-500/10 text-green-500 border border-green-500/20">
+                <CheckCircle2 size={14} />
+                Completed
+              </span>
+            )}
           </div>
         </div>
       </div>

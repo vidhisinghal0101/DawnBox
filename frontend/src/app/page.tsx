@@ -46,6 +46,10 @@ export default function Home() {
     );
   }
 
+
+  const activeItems = items.filter(i => !i.is_resolved);
+  const completedItems = items.filter(i => i.is_resolved);
+
   const getButtonState = (currentStatus: string, defaultText: string, defaultIcon: React.ReactNode, isPrimary: boolean = false) => {
     let label = defaultText;
     let icon = defaultIcon;
@@ -149,7 +153,7 @@ export default function Home() {
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full ${activeTab === 'All' ? 'bg-blue-400' : 'bg-blue-500/50'}`}></div>
-                      All ({items.length})
+                      All ({activeItems.length})
                     </button>
                     
                     <button
@@ -161,7 +165,7 @@ export default function Home() {
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full ${activeTab === 'Action Required' ? 'bg-red-400' : 'bg-red-500/50'}`}></div>
-                      Action Required ({items.filter(i => i.priority_tag === 'Action Required').length})
+                      Action Required ({activeItems.filter(i => i.priority_tag === 'Action Required').length})
                     </button>
                     
                     <button
@@ -173,7 +177,7 @@ export default function Home() {
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full ${activeTab === 'FYI' ? 'bg-yellow-400' : 'bg-yellow-500/50'}`}></div>
-                      FYI ({items.filter(i => i.priority_tag === 'FYI').length})
+                      FYI ({activeItems.filter(i => i.priority_tag === 'FYI').length})
                     </button>
 
                     <button
@@ -185,7 +189,7 @@ export default function Home() {
                       }`}
                     >
                       <div className={`w-1.5 h-1.5 rounded-full ${activeTab === 'Ignore' ? 'bg-zinc-400' : 'bg-zinc-600'}`}></div>
-                      Ignore ({items.filter(i => i.priority_tag === 'Can Ignore' || i.priority_tag === 'Uncategorized').length})
+                      Ignore ({activeItems.filter(i => i.priority_tag === 'Can Ignore' || i.priority_tag === 'Uncategorized').length})
                     </button>
                   </div>
                 </div>
@@ -195,7 +199,7 @@ export default function Home() {
               
               <div className="space-y-4">
                 {(() => {
-                  const filteredItems = items.filter(item => {
+                  const filteredItems = activeItems.filter(item => {
                     if (activeTab === 'Action Required') return item.priority_tag === 'Action Required';
                     if (activeTab === 'FYI') return item.priority_tag === 'FYI';
                     if (activeTab === 'Ignore') return item.priority_tag === 'Can Ignore' || item.priority_tag === 'Uncategorized';
@@ -220,6 +224,23 @@ export default function Home() {
                     <ItemCard key={item.id} item={item} />
                   ));
                 })()}
+              </div>
+            </div>
+          )}
+
+          {completedItems.length > 0 && (
+            <div className="mt-8">
+              <div className="flex items-center gap-2 mb-4 px-1 opacity-70">
+                <CheckCircle2 size={18} className="text-green-500" />
+                <h2 className="text-lg font-semibold text-zinc-300 tracking-tight">Completed Today</h2>
+                <span className="text-xs font-medium bg-zinc-800 px-2 py-0.5 rounded-full ml-2 text-zinc-400">
+                  {completedItems.length}
+                </span>
+              </div>
+              <div className="space-y-4">
+                {completedItems.map(item => (
+                  <ItemCard key={item.id} item={item} />
+                ))}
               </div>
             </div>
           )}

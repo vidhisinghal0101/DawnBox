@@ -8,12 +8,12 @@ import {
   LayoutDashboard,
   Settings,
   Mail,
-  BrainCircuit,
   LogOut,
   MessageSquare
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
 import { GithubSVG } from './GithubSVG';
+import { DawnBoxLogo } from './DawnBoxLogo';
 import Link from 'next/link';
 import { useFeedStore } from '../store';
 
@@ -34,10 +34,10 @@ export function Sidebar() {
   return (
     <aside className="w-64 h-screen glass-panel fixed left-0 top-0 border-r border-border flex flex-col p-4 z-10">
       <div className="flex items-center gap-3 mb-10 mt-2 px-2">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-          <BrainCircuit size={20} className="text-white" />
+        <div className="flex items-center justify-center">
+          <DawnBoxLogo size={32} />
         </div>
-        <h1 className="font-bold text-xl tracking-tight text-white">DawnBox</h1>
+        <h1 className="font-bold text-2xl tracking-tight text-white">DawnBox</h1>
       </div>
 
       <div className="space-y-6 flex-1">
