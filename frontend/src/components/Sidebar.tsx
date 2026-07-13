@@ -3,11 +3,11 @@
 import React, { useEffect } from 'react';
 import { usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { 
-  LayoutDashboard, 
-  Settings, 
-  GitBranch, 
-  Mail, 
+import {
+  LayoutDashboard,
+  Settings,
+  GitBranch,
+  Mail,
   BrainCircuit,
   LogOut,
   MessageSquare
@@ -38,29 +38,28 @@ export function Sidebar() {
         </div>
         <h1 className="font-bold text-xl tracking-tight text-white">DawnBox</h1>
       </div>
-      
+
       <div className="space-y-6 flex-1">
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Main</p>
           <nav className="space-y-1">
-            <Link 
-              href="/" 
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-md font-medium transition-colors ${
-                pathname === '/' ? 'bg-secondary text-white' : 'text-muted-foreground hover:bg-secondary/50 hover:text-white'
-              }`}
+            <Link
+              href="/"
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-md font-medium transition-colors ${pathname === '/' ? 'bg-secondary text-white' : 'text-muted-foreground hover:bg-secondary/50 hover:text-white'
+                }`}
             >
               <LayoutDashboard size={18} />
               <span>Dashboard</span>
             </Link>
           </nav>
         </div>
-        
+
         <div>
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Integrations</p>
           <nav className="space-y-1">
-            <a 
-              href="https://github.com/vidhisinghal0101" 
-              target="_blank" 
+            <a
+              href="https://github.com/vidhisinghal0101"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
             >
@@ -70,9 +69,9 @@ export function Sidebar() {
               </div>
               <div className={`w-2 h-2 rounded-full ${integrationStatus.github ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>
             </a>
-            <a 
-              href="https://mail.google.com" 
-              target="_blank" 
+            <a
+              href="https://mail.google.com"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
             >
@@ -82,9 +81,9 @@ export function Sidebar() {
               </div>
               <div className={`w-2 h-2 rounded-full ${integrationStatus.gmail ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>
             </a>
-            <a 
-              href="https://slack.com" 
-              target="_blank" 
+            <a
+              href="https://slack.com"
+              target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
             >
@@ -117,19 +116,18 @@ export function Sidebar() {
           </div>
         </div>
       )}
-      
+
       <div className="pt-4 border-t border-border">
         <nav className="space-y-1">
-          <Link 
-            href="/settings" 
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${
-              pathname === '/settings' ? 'bg-secondary text-white' : 'text-muted-foreground hover:bg-secondary/50 hover:text-white'
-            }`}
+          <Link
+            href="/settings"
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${pathname === '/settings' ? 'bg-secondary text-white' : 'text-muted-foreground hover:bg-secondary/50 hover:text-white'
+              }`}
           >
             <Settings size={18} />
             <span>Settings</span>
           </Link>
-          <button 
+          <button
             onClick={() => signOut({ callbackUrl: '/login' })}
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
           >
