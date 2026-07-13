@@ -122,7 +122,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       };
       
       setTimeout(poll, 4000);
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to trigger fetch.', loading: false, fetchStatus: 'error' });
       setTimeout(() => set({ fetchStatus: 'idle', error: null }), 5000);
     }
@@ -171,7 +171,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       };
       
       setTimeout(poll, 4000);
-    } catch (error) {
+    } catch {
       set({ error: 'Failed to trigger analysis.', loading: false, analyzeStatus: 'error' });
       setTimeout(() => set({ analyzeStatus: 'idle', error: null }), 5000);
     }

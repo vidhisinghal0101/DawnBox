@@ -13,7 +13,6 @@ import {
   Shield,
   ExternalLink,
   CheckCircle2,
-  XCircle,
   Loader2,
   MessageSquare
 } from 'lucide-react';
