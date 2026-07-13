@@ -1,10 +1,13 @@
 from backend.agents.schema import AgentState
 from backend.agents.fetcher import fetch_data
 
-def test_fetcher():
+import pytest
+
+@pytest.mark.asyncio
+async def test_fetcher():
     """Test that the mock fetcher returns a valid list of items."""
-    state = AgentState(user_id=1)
-    result = fetch_data(state)
+    state = AgentState(user_id="1")
+    result = await fetch_data(state)
     
     assert "fetched_items" in result
     assert isinstance(result["fetched_items"], list)

@@ -22,7 +22,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { integrationStatus, fetchIntegrationStatus } = useFeedStore();
 
-  const userId = (session?.user as unknown as { id: number })?.id || 1;
+  const userId = (session?.user as unknown as { id: string })?.id || "1";
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -65,6 +65,7 @@ export default function SettingsPage() {
 
             <div className="flex items-center gap-4">
               {user?.image ? (
+                // eslint-disable-next-line @next/next/no-img-element
                 <img src={user.image} alt="Avatar" className="w-16 h-16 rounded-full border-2 border-zinc-700 shadow-xl" />
               ) : (
                 <div className="w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold shadow-xl">

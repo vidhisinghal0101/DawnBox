@@ -5,7 +5,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/a
 
 export interface FeedItem {
   id: number;
-  user_id: number;
+  user_id: string;
   external_id: string;
   tool_name: string;
   title: string;
@@ -25,10 +25,10 @@ interface FeedStore {
   error: string | null;
   pipelineStatus: 'idle' | 'running' | 'success' | 'error';
   integrationStatus: { github: boolean, gmail: boolean, slack: boolean };
-  fetchItems: (userId: number) => Promise<void>;
-  fetchBriefing: (userId: number) => Promise<void>;
-  fetchIntegrationStatus: (userId: number) => Promise<void>;
-  triggerPipeline: (userId: number) => Promise<void>;
+  fetchItems: (userId: string) => Promise<void>;
+  fetchBriefing: (userId: string) => Promise<void>;
+  fetchIntegrationStatus: (userId: string) => Promise<void>;
+  triggerPipeline: (userId: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -42,7 +42,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
 
   clearError: () => set({ error: null }),
 
-  fetchItems: async (userId: number) => {
+  fetchItems: async (userId: string) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/feed/items/${userId}`);
       set({ items: response.data });
@@ -51,7 +51,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
     }
   },
 
-  fetchBriefing: async (userId: number) => {
+  fetchBriefing: async (userId: string) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/feed/briefing/${userId}`);
       set({ briefing: response.data.content });
@@ -60,7 +60,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
     }
   },
 
-  fetchIntegrationStatus: async (userId: number) => {
+  fetchIntegrationStatus: async (userId: string) => {
     try {
       const response = await axios.get(`${API_BASE_URL}/auth/status/${userId}`);
       set({ integrationStatus: response.data });
@@ -69,7 +69,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
     }
   },
 
-  triggerPipeline: async (userId: number) => {
+  triggerPipeline: async (userId: string) => {
     set({ loading: true, error: null, pipelineStatus: 'running' });
     try {
       await axios.post(`${API_BASE_URL}/feed/trigger-pipeline/${userId}`);

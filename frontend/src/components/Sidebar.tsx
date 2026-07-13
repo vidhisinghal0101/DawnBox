@@ -22,7 +22,7 @@ export function Sidebar() {
   const user = session?.user;
   const { integrationStatus, fetchIntegrationStatus } = useFeedStore();
 
-  const userId = (session?.user as unknown as { id: number })?.id || 1;
+  const userId = (session?.user as unknown as { id: string })?.id || "1";
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -103,6 +103,7 @@ export function Sidebar() {
         <div className="mb-3 px-2 py-3 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
           <div className="flex items-center gap-3">
             {user.image ? (
+              // eslint-disable-next-line @next/next/no-img-element
               <img src={user.image} alt="" className="w-8 h-8 rounded-full" />
             ) : (
               <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">

@@ -21,7 +21,7 @@ export default function Home() {
     }
   }, [status, router]);
 
-  const userId = (session?.user as unknown as { id: number })?.id || 1;
+  const userId = (session?.user as unknown as { id: string })?.id || "1";
 
   useEffect(() => {
     if (status === 'authenticated') {
