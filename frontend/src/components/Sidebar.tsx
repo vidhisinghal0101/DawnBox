@@ -7,7 +7,6 @@ import { useSession } from 'next-auth/react';
 import {
   LayoutDashboard,
   Settings,
-  Github,
   Mail,
   BrainCircuit,
   LogOut,
