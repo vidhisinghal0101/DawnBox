@@ -128,7 +128,7 @@ export default function Home() {
 
           {!loading && <BriefingPanel briefing={briefing} />}
 
-          {!loading && items.length > 0 && (
+          {!loading && (
             <div>
               <div className="flex items-center justify-between mb-4 px-1">
                 <div className="flex flex-col w-full">
@@ -234,17 +234,6 @@ export default function Home() {
             </div>
           )}
 
-          {!loading && items.length === 0 && (
-            <div className="glass-panel rounded-xl p-12 text-center flex flex-col items-center">
-              <div className="w-16 h-16 rounded-full bg-zinc-800/50 flex items-center justify-center mb-4">
-                <Layers size={24} className="text-zinc-500" />
-              </div>
-              <h3 className="text-xl font-medium text-white mb-2">No Notifications</h3>
-              <p className="text-muted-foreground max-w-sm">
-                Your queue is empty. Click Fetch Notifications to get your latest updates.
-              </p>
-            </div>
-          )}
         </div>
       </main>
     </div>
