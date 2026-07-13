@@ -10,9 +10,9 @@ import {
   Mail,
   BrainCircuit,
   LogOut,
-  MessageSquare,
-  GitBranch
+  MessageSquare
 } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
 import { signOut } from 'next-auth/react';
 import Link from 'next/link';
 import { useFeedStore } from '../store';
@@ -65,7 +65,7 @@ export function Sidebar() {
               className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <GitBranch size={18} />
+                <FaGithub size={18} />
                 <span>GitHub</span>
               </div>
               <div className={`w-2 h-2 rounded-full ${integrationStatus.github ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { signIn } from 'next-auth/react';
-import { BrainCircuit, Mail, MessageSquare, Terminal, GitBranch } from 'lucide-react';
+import { BrainCircuit, Mail, MessageSquare, Terminal } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
 
 export default function LoginPage() {
   return (
@@ -26,7 +27,7 @@ export default function LoginPage() {
               onClick={() => signIn('github', { callbackUrl: '/' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black hover:bg-zinc-200 transition-all font-semibold rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.1)] group"
             >
-              <GitBranch size={20} className="text-black group-hover:-translate-y-0.5 transition-transform" />
+              <FaGithub size={20} className="text-black group-hover:-translate-y-0.5 transition-transform" />
               <span>Continue with GitHub</span>
             </button>
 

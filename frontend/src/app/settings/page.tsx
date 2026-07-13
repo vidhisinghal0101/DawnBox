@@ -11,11 +11,10 @@ import {
   Mail,
   Shield,
   ExternalLink,
-  CheckCircle2,
   Loader2,
-  MessageSquare,
-  GitBranch
+  MessageSquare
 } from 'lucide-react';
+import { FaGithub } from 'react-icons/fa';
 
 export default function SettingsPage() {
   const { data: session, status } = useSession();
@@ -99,20 +98,16 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   {integrationStatus.gmail ? (
-                    <>
-                      <CheckCircle2 size={16} className="text-green-500" />
-                      <span className="text-green-400 font-medium mr-2">Connected</span>
-                      <button 
-                        onClick={() => disconnectIntegration(userId, 'google')}
-                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
-                      >
-                        Disconnect
-                      </button>
-                    </>
+                    <button 
+                      onClick={() => disconnectIntegration(userId, 'google')}
+                      className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                    >
+                      Disconnect
+                    </button>
                   ) : (
                     <button 
                       onClick={() => connectIntegration(userId, 'google')}
-                      className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                      className="px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold rounded-md transition-colors"
                     >
                       Connect
                     </button>
@@ -124,7 +119,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-zinc-800">
-                    <GitBranch size={18} className="text-white" />
+                    <FaGithub size={18} className="text-white" />
                   </div>
                   <div>
                     <p className="text-white font-medium">GitHub</p>
@@ -133,20 +128,16 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   {integrationStatus.github ? (
-                    <>
-                      <CheckCircle2 size={16} className="text-green-500" />
-                      <span className="text-green-400 font-medium mr-2">Connected</span>
-                      <button 
-                        onClick={() => disconnectIntegration(userId, 'github')}
-                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
-                      >
-                        Disconnect
-                      </button>
-                    </>
+                    <button 
+                      onClick={() => disconnectIntegration(userId, 'github')}
+                      className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                    >
+                      Disconnect
+                    </button>
                   ) : (
                     <button 
                       onClick={() => connectIntegration(userId, 'github')}
-                      className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold rounded-md transition-colors"
+                      className="px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold rounded-md transition-colors"
                     >
                       Connect
                     </button>
@@ -167,20 +158,16 @@ export default function SettingsPage() {
                 </div>
                 <div className="flex items-center gap-2 text-sm">
                   {integrationStatus.slack ? (
-                    <>
-                      <CheckCircle2 size={16} className="text-green-500" />
-                      <span className="text-green-400 font-medium mr-2">Connected</span>
-                      <button 
-                        onClick={() => disconnectIntegration(userId, 'slack')}
-                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
-                      >
-                        Disconnect
-                      </button>
-                    </>
+                    <button 
+                      onClick={() => disconnectIntegration(userId, 'slack')}
+                      className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                    >
+                      Disconnect
+                    </button>
                   ) : (
                     <button 
                       onClick={() => connectIntegration(userId, 'slack')}
-                      className="px-3 py-1.5 bg-[#4A154B]/20 hover:bg-[#4A154B]/40 text-[#E01E5A] text-xs font-semibold rounded-md transition-colors"
+                      className="px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 text-xs font-semibold rounded-md transition-colors"
                     >
                       Connect
                     </button>
