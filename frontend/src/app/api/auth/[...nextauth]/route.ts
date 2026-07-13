@@ -85,6 +85,8 @@ export const authOptions: NextAuthOptions = {
   session: {
     strategy: "jwt",
   },
+  secret: process.env.NEXTAUTH_SECRET,
+  trustHost: true, // Bypass NextAuth CSRF host mismatch errors
 };
 
 const handler = NextAuth(authOptions);
