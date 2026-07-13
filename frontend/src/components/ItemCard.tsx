@@ -1,5 +1,5 @@
 import React from 'react';
-import { GitBranch, Mail, AlertTriangle, Info, BellOff, ExternalLink, CheckCircle2 } from 'lucide-react';
+import { Github, Mail, AlertTriangle, Info, BellOff, ExternalLink, CheckCircle2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { FeedItem } from '../store';
 
@@ -48,12 +48,17 @@ export function ItemCard({ item }: { item: FeedItem }) {
       className="glass-panel rounded-xl p-5 hover:bg-zinc-800/80 transition-all group cursor-pointer border border-transparent hover:border-zinc-700/50"
     >
       <div className="flex justify-between items-start mb-3">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${isGithub ? 'bg-zinc-800 text-white' : 'bg-red-500/10 text-red-500'}`}>
-            {isGithub ? <GitBranch size={18} /> : <Mail size={18} />}
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center justify-center min-w-[50px]">
+            <div className={`p-2 rounded-lg mb-1.5 ${isGithub ? 'bg-zinc-800 text-white' : 'bg-red-500/10 text-red-500'}`}>
+              {isGithub ? <Github size={20} /> : <Mail size={20} />}
+            </div>
+            <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
+              {isGithub ? 'GitHub' : 'Gmail'}
+            </span>
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-white group-hover:text-blue-400 transition-colors flex items-center gap-2">
+            <h3 className="font-semibold text-lg text-white group-hover:text-blue-400 transition-colors flex items-start gap-2 max-w-[550px]">
               {item.title}
               <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" />
             </h3>
