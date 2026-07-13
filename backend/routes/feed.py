@@ -39,7 +39,7 @@ async def get_briefing(user_id: str, db: AsyncSession = Depends(get_db)):
             .limit(1)
         )
         summary = result.scalars().first()
-        return {"content": summary.content if summary else "No briefing generated yet. Run the pipeline to get started."}
+        return {"content": summary.content if summary else "Your briefing is currently empty. Please fetch your notifications to receive your personalized summary."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
