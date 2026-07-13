@@ -26,6 +26,16 @@ def prioritize_data(state: AgentState):
     if not items:
         return {"prioritized_items": []}
 
+    if not _api_key:
+        print("WARNING: GROQ_API_KEY is not set. Using mock prioritization.")
+        prioritized = []
+        for i, item in enumerate(items):
+            item["priority_score"] = 9 if i % 2 == 0 else 4
+            item["priority_tag"] = "Action Required" if i % 2 == 0 else "FYI"
+            item["ai_explanation"] = "Mock explanation because GROQ_API_KEY is missing."
+            prioritized.append(item)
+        return {"prioritized_items": prioritized}
+
     prioritized = []
 
     system_prompt = """You are an expert prioritization AI.

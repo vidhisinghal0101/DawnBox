@@ -20,6 +20,10 @@ def summarize_data(state: AgentState):
     if not items:
         return {"summary": "You're all caught up! No new notifications."}
 
+    if not _api_key:
+        print("WARNING: GROQ_API_KEY is not set. Using mock summary.")
+        return {"summary": "Good morning! You have a few mock notifications to look at today since your GROQ_API_KEY is missing."}
+
     system_prompt = """You are an AI assistant generating a 'Morning Briefing' for a software engineer.
 You will be given a list of prioritized notifications from GitHub and Gmail.
 

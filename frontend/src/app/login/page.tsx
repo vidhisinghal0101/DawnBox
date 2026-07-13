@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { signIn } from 'next-auth/react';
-import { BrainCircuit, GitBranch, Mail, MessageSquare } from 'lucide-react';
+import { BrainCircuit, Mail, MessageSquare, Terminal } from 'lucide-react';
+import { GithubSVG } from '../../components/GithubSVG';
 
 export default function LoginPage() {
   return (
@@ -26,7 +27,7 @@ export default function LoginPage() {
               onClick={() => signIn('github', { callbackUrl: '/' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black hover:bg-zinc-200 transition-all font-semibold rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.1)] group"
             >
-              <GitBranch size={20} className="text-black group-hover:-translate-y-0.5 transition-transform" />
+              <GithubSVG size={20} className="text-black group-hover:-translate-y-0.5 transition-transform" />
               <span>Continue with GitHub</span>
             </button>
 
@@ -45,6 +46,16 @@ export default function LoginPage() {
               <MessageSquare size={20} className="text-white group-hover:-translate-y-0.5 transition-transform" />
               <span>Continue with Slack</span>
             </button>
+
+            {process.env.NODE_ENV === 'development' && (
+              <button
+                onClick={() => signIn('credentials', { callbackUrl: '/' })}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-all font-semibold rounded-xl group mt-4"
+              >
+                <Terminal size={20} className="group-hover:-translate-y-0.5 transition-transform" />
+                <span>Developer Mock Login</span>
+              </button>
+            )}
           </div>
           
           <div className="mt-6 text-center text-xs text-zinc-500">

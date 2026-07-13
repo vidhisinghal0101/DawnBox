@@ -6,10 +6,10 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '../../components/Sidebar';
 import { useFeedStore } from '../../store';
+import { GithubSVG } from '../../components/GithubSVG';
 import {
   User,
   Mail,
-  GitBranch,
   Shield,
   ExternalLink,
   CheckCircle2,
@@ -21,7 +21,7 @@ import {
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { integrationStatus, fetchIntegrationStatus } = useFeedStore();
+  const { integrationStatus, fetchIntegrationStatus, connectIntegration } = useFeedStore();
 
   const userId = (session?.user as unknown as { id: string })?.id || "1";
 
@@ -105,10 +105,12 @@ export default function SettingsPage() {
                       <span className="text-green-400 font-medium">Connected</span>
                     </>
                   ) : (
-                    <>
-                      <XCircle size={16} className="text-zinc-500" />
-                      <span className="text-zinc-400 font-medium">Not Connected</span>
-                    </>
+                    <button 
+                      onClick={() => connectIntegration(userId, 'google')}
+                      className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                    >
+                      Connect
+                    </button>
                   )}
                 </div>
               </div>
@@ -117,7 +119,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-zinc-800">
-                    <GitBranch size={18} className="text-white" />
+                    <GithubSVG size={18} className="text-white" />
                   </div>
                   <div>
                     <p className="text-white font-medium">GitHub</p>
@@ -131,10 +133,12 @@ export default function SettingsPage() {
                       <span className="text-green-400 font-medium">Connected</span>
                     </>
                   ) : (
-                    <>
-                      <XCircle size={16} className="text-zinc-500" />
-                      <span className="text-zinc-400 font-medium">Not Connected</span>
-                    </>
+                    <button 
+                      onClick={() => connectIntegration(userId, 'github')}
+                      className="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs font-semibold rounded-md transition-colors"
+                    >
+                      Connect
+                    </button>
                   )}
                 </div>
               </div>
@@ -157,10 +161,12 @@ export default function SettingsPage() {
                       <span className="text-green-400 font-medium">Connected</span>
                     </>
                   ) : (
-                    <>
-                      <XCircle size={16} className="text-zinc-500" />
-                      <span className="text-zinc-400 font-medium">Not Connected</span>
-                    </>
+                    <button 
+                      onClick={() => connectIntegration(userId, 'slack')}
+                      className="px-3 py-1.5 bg-[#4A154B]/20 hover:bg-[#4A154B]/40 text-[#E01E5A] text-xs font-semibold rounded-md transition-colors"
+                    >
+                      Connect
+                    </button>
                   )}
                 </div>
               </div>

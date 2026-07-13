@@ -7,7 +7,7 @@ from sqlalchemy import desc
 
 from database import get_db
 from models import Item, Summary
-from agents.graph import run_pipeline
+from agents.graph import run_pipeline, run_fetch_only, run_analyze_only
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -49,5 +49,21 @@ async def trigger_pipeline(user_id: str, background_tasks: BackgroundTasks, db: 
         # Run the langgraph pipeline in the background
         background_tasks.add_task(run_pipeline, user_id)
         return {"status": "Pipeline triggered successfully in background."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/fetch-data/{user_id}")
+async def trigger_fetch(user_id: str, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    try:
+        background_tasks.add_task(run_fetch_only, user_id)
+        return {"status": "Fetch triggered successfully in background."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/analyze-data/{user_id}")
+async def trigger_analyze(user_id: str, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
+    try:
+        background_tasks.add_task(run_analyze_only, user_id)
+        return {"status": "Analysis triggered successfully in background."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

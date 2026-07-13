@@ -23,12 +23,15 @@ interface FeedStore {
   briefing: string;
   loading: boolean;
   error: string | null;
-  pipelineStatus: 'idle' | 'running' | 'success' | 'error';
+  fetchStatus: 'idle' | 'running' | 'success' | 'error';
+  analyzeStatus: 'idle' | 'running' | 'success' | 'error';
   integrationStatus: { github: boolean, gmail: boolean, slack: boolean };
   fetchItems: (userId: string) => Promise<void>;
   fetchBriefing: (userId: string) => Promise<void>;
   fetchIntegrationStatus: (userId: string) => Promise<void>;
-  triggerPipeline: (userId: string) => Promise<void>;
+  triggerFetch: (userId: string) => Promise<void>;
+  triggerAnalyze: (userId: string) => Promise<void>;
+  connectIntegration: (userId: string, toolName: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -37,7 +40,8 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
   briefing: '',
   loading: false,
   error: null,
-  pipelineStatus: 'idle',
+  fetchStatus: 'idle',
+  analyzeStatus: 'idle',
   integrationStatus: { github: false, gmail: false, slack: false },
 
   clearError: () => set({ error: null }),
@@ -69,13 +73,66 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
     }
   },
 
-  triggerPipeline: async (userId: string) => {
-    set({ loading: true, error: null, pipelineStatus: 'running' });
+  connectIntegration: async (userId: string, toolName: string) => {
     try {
-      await axios.post(`${API_BASE_URL}/feed/trigger-pipeline/${userId}`);
+      await axios.post(`${API_BASE_URL}/auth/connect-tool`, { user_id: userId, tool_name: toolName });
+      // Refresh status after connection
+      await get().fetchIntegrationStatus(userId);
+    } catch (error) {
+      console.error(`Failed to connect ${toolName}:`, error);
+    }
+  },
+
+  triggerFetch: async (userId: string) => {
+    set({ loading: true, error: null, fetchStatus: 'running' });
+    try {
+      await axios.post(`${API_BASE_URL}/feed/fetch-data/${userId}`);
       
-      // Poll for results — the pipeline runs in background on the server
-      // We check every 3 seconds up to 10 times (30 seconds max)
+      let attempts = 0;
+      const maxAttempts = 10;
+      
+      const poll = async () => {
+        attempts++;
+        try {
+          const itemsRes = await axios.get(`${API_BASE_URL}/feed/items/${userId}`);
+          const newItems = itemsRes.data;
+          const currentItems = get().items;
+          
+          const hasNewData = newItems.length !== currentItems.length || 
+            (newItems.length > 0 && currentItems.length > 0 && newItems[0]?.id !== currentItems[0]?.id);
+          
+          if (hasNewData || attempts >= maxAttempts) {
+            set({ 
+              items: newItems, 
+              loading: false, 
+              fetchStatus: hasNewData ? 'success' : 'success'
+            });
+            setTimeout(() => set({ fetchStatus: 'idle' }), 3000);
+          } else {
+            setTimeout(poll, 3000);
+          }
+        } catch {
+          if (attempts < maxAttempts) {
+            setTimeout(poll, 3000);
+          } else {
+            set({ loading: false, fetchStatus: 'error', error: 'Fetch timed out. Please try again.' });
+            setTimeout(() => set({ fetchStatus: 'idle', error: null }), 5000);
+          }
+        }
+      };
+      
+      setTimeout(poll, 4000);
+    } catch (error) {
+      set({ error: 'Failed to trigger fetch.', loading: false, fetchStatus: 'error' });
+      setTimeout(() => set({ fetchStatus: 'idle', error: null }), 5000);
+    }
+  },
+
+  triggerAnalyze: async (userId: string) => {
+    set({ loading: true, error: null, analyzeStatus: 'running' });
+    try {
+      await axios.post(`${API_BASE_URL}/feed/analyze-data/${userId}`);
+      
       let attempts = 0;
       const maxAttempts = 10;
       
@@ -87,46 +144,36 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
           
           const newItems = itemsRes.data;
           const newBriefing = briefingRes.data.content;
-          const currentItems = get().items;
+          const currentBriefing = get().briefing;
           
-          // Check if data has changed (pipeline has finished)
-          const hasNewData = newItems.length !== currentItems.length || 
-            (newItems.length > 0 && currentItems.length > 0 && newItems[0]?.id !== currentItems[0]?.id);
+          const hasNewData = newBriefing !== currentBriefing || 
+            (newItems.length > 0 && newItems[0]?.priority_tag !== 'Uncategorized');
           
           if (hasNewData || attempts >= maxAttempts) {
             set({ 
               items: newItems, 
               briefing: newBriefing, 
               loading: false, 
-              pipelineStatus: hasNewData ? 'success' : 'success'
+              analyzeStatus: hasNewData ? 'success' : 'success'
             });
-            
-            // Reset status after 3 seconds
-            setTimeout(() => set({ pipelineStatus: 'idle' }), 3000);
+            setTimeout(() => set({ analyzeStatus: 'idle' }), 3000);
           } else {
-            // Keep polling
             setTimeout(poll, 3000);
           }
         } catch {
           if (attempts < maxAttempts) {
             setTimeout(poll, 3000);
           } else {
-            set({ loading: false, pipelineStatus: 'error', error: 'Pipeline timed out. Please try again.' });
-            setTimeout(() => set({ pipelineStatus: 'idle', error: null }), 5000);
+            set({ loading: false, analyzeStatus: 'error', error: 'Analysis timed out. Please try again.' });
+            setTimeout(() => set({ analyzeStatus: 'idle', error: null }), 5000);
           }
         }
       };
       
-      // Start polling after an initial delay
       setTimeout(poll, 4000);
     } catch (error) {
-      set({ 
-        error: 'Failed to trigger pipeline. Check your connection.', 
-        loading: false, 
-        pipelineStatus: 'error' 
-      });
-      setTimeout(() => set({ pipelineStatus: 'idle', error: null }), 5000);
-      console.error(error);
+      set({ error: 'Failed to trigger analysis.', loading: false, analyzeStatus: 'error' });
+      setTimeout(() => set({ analyzeStatus: 'idle', error: null }), 5000);
     }
   },
 }));

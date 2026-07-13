@@ -164,12 +164,48 @@ async def fetch_data(state: AgentState):
         items = [
             {
                 "tool_name": "github",
-                "external_id": "welcome_1",
-                "title": "Welcome to DawnBox!",
-                "content": "Connect your GitHub or Google account to see real AI-prioritized notifications here.",
+                "external_id": "mock_gh_1",
+                "title": "PR Review: Add new AI pipeline architecture",
+                "content": "I've reviewed the code. Please address the comments on the summarizer agent before merging.",
                 "url": "https://github.com",
-                "author": "DawnBox AI",
+                "author": "alex-dev",
                 "timestamp": now.isoformat()
+            },
+            {
+                "tool_name": "gmail",
+                "external_id": "mock_gm_1",
+                "title": "URGENT: Production database latency alert",
+                "content": "We are seeing elevated latency on the primary database cluster. Please investigate immediately.",
+                "url": "https://mail.google.com",
+                "author": "Datadog Alerts",
+                "timestamp": (now - datetime.timedelta(minutes=15)).isoformat()
+            },
+            {
+                "tool_name": "github",
+                "external_id": "mock_gh_2",
+                "title": "Issue #42: Button text is misaligned on mobile",
+                "content": "When viewing the dashboard on an iPhone, the refresh button overlaps with the header.",
+                "url": "https://github.com",
+                "author": "sarah-design",
+                "timestamp": (now - datetime.timedelta(hours=2)).isoformat()
+            },
+            {
+                "tool_name": "slack",
+                "external_id": "mock_sl_1",
+                "title": "Message in #engineering",
+                "content": "Hey team, are we still doing the deployment at 3 PM today?",
+                "url": "https://slack.com",
+                "author": "john.doe",
+                "timestamp": (now - datetime.timedelta(hours=1)).isoformat()
+            },
+            {
+                "tool_name": "gmail",
+                "external_id": "mock_gm_2",
+                "title": "Weekly Newsletter: AI Trends",
+                "content": "Here are the top 5 AI trends you need to know about this week...",
+                "url": "https://mail.google.com",
+                "author": "Tech Weekly",
+                "timestamp": (now - datetime.timedelta(hours=5)).isoformat()
             }
         ]
         

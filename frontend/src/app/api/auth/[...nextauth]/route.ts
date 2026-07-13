@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GithubProvider from "next-auth/providers/github";
 import GoogleProvider from "next-auth/providers/google";
 import SlackProvider from "next-auth/providers/slack";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -33,6 +34,13 @@ export const authOptions: NextAuthOptions = {
           scope: 'openid profile email', // Basic login scopes
         },
       },
+    }),
+    CredentialsProvider({
+      name: 'Developer Login',
+      credentials: {},
+      async authorize() {
+        return { id: "1", name: "Local Dev", email: "dev@localhost", image: "" };
+      }
     }),
   ],
   callbacks: {
