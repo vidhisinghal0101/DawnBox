@@ -13,7 +13,6 @@ export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
   const { items, briefing, loading, error, fetchStatus, analyzeStatus, fetchItems, fetchBriefing, triggerFetch, triggerAnalyze } = useFeedStore();
-  const [showAll, setShowAll] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'All' | 'Action Required' | 'FYI' | 'Ignore'>('All');
   
   useEffect(() => {
@@ -143,13 +142,14 @@ export default function Home() {
                   <div className="flex flex-wrap items-center gap-2 mt-4">
                     <button
                       onClick={() => setActiveTab('All')}
-                      className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all ${
+                      className={`px-3 py-1.5 text-xs font-medium rounded-full border transition-all flex items-center gap-1.5 ${
                         activeTab === 'All'
-                          ? 'bg-zinc-800 border-zinc-700 text-white shadow-sm'
-                          : 'bg-zinc-900/50 border-zinc-800/50 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
+                          ? 'bg-blue-500/20 border-blue-500/50 text-blue-400 shadow-[0_0_10px_rgba(59,130,246,0.2)]'
+                          : 'bg-zinc-900/50 border-zinc-800/50 text-zinc-500 hover:text-blue-400/80 hover:bg-blue-500/10 hover:border-blue-500/30'
                       }`}
                     >
-                      Show All Categories
+                      <div className={`w-1.5 h-1.5 rounded-full ${activeTab === 'All' ? 'bg-blue-400' : 'bg-blue-500/50'}`}></div>
+                      All ({items.length})
                     </button>
                     
                     <button
@@ -190,17 +190,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {activeTab === 'All' && (
-                  <button 
-                    onClick={() => setShowAll(!showAll)}
-                    className="text-xs font-medium text-zinc-500 hover:text-zinc-300 transition-colors flex items-center gap-1.5 px-2 py-1 rounded-md hover:bg-zinc-800"
-                  >
-                    {showAll ? "Hide low priority" : "Show all notifications"}
-                    <span className="bg-zinc-800 px-1.5 py-0.5 rounded text-[10px]">
-                      {items.length}
-                    </span>
-                  </button>
-                )}
+
               </div>
               
               <div className="space-y-4">
@@ -209,7 +199,7 @@ export default function Home() {
                     if (activeTab === 'Action Required') return item.priority_tag === 'Action Required';
                     if (activeTab === 'FYI') return item.priority_tag === 'FYI';
                     if (activeTab === 'Ignore') return item.priority_tag === 'Can Ignore' || item.priority_tag === 'Uncategorized';
-                    return showAll || item.priority_tag !== 'Can Ignore';
+                    return true;
                   });
 
                   if (filteredItems.length === 0) {
