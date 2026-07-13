@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2, Check, Github } from 'lucide-react';
+import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2, Check, GitBranch } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { FeedItem, useFeedStore } from '../store';
 
@@ -59,7 +59,7 @@ export function ItemCard({ item }: { item: FeedItem }) {
         <div className="flex items-center gap-4">
           <div className="flex flex-col items-center justify-center min-w-[50px]">
             <div className={`p-2 rounded-lg mb-1.5 ${isGithub ? 'bg-zinc-800 text-white' : 'bg-red-500/10 text-red-500'}`}>
-              {isGithub ? <Github size={20} /> : <Mail size={20} />}
+              {isGithub ? <GitBranch size={20} /> : <Mail size={20} />}
             </div>
             <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest">
               {isGithub ? 'GitHub' : 'Gmail'}
