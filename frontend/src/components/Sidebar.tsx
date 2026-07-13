@@ -8,12 +8,12 @@ import {
   LayoutDashboard,
   Settings,
   Mail,
+  BrainCircuit,
   LogOut,
-  MessageSquare
+  MessageSquare,
+  Github
 } from 'lucide-react';
 import { signOut } from 'next-auth/react';
-import { GithubSVG } from './GithubSVG';
-import { DawnBoxLogo } from './DawnBoxLogo';
 import Link from 'next/link';
 import { useFeedStore } from '../store';
 
@@ -34,10 +34,10 @@ export function Sidebar() {
   return (
     <aside className="w-64 h-screen glass-panel fixed left-0 top-0 border-r border-border flex flex-col p-4 z-10">
       <div className="flex items-center gap-3 mb-10 mt-2 px-2">
-        <div className="flex items-center justify-center">
-          <DawnBoxLogo size={32} />
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+          <BrainCircuit size={20} className="text-white" />
         </div>
-        <h1 className="font-bold text-2xl tracking-tight text-white">DawnBox</h1>
+        <h1 className="font-bold text-xl tracking-tight text-white">DawnBox</h1>
       </div>
 
       <div className="space-y-6 flex-1">
@@ -65,7 +65,7 @@ export function Sidebar() {
               className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <GithubSVG size={18} />
+                <Github size={18} />
                 <span>GitHub</span>
               </div>
               <div className={`w-2 h-2 rounded-full ${integrationStatus.github ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>

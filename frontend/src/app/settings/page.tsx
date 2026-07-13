@@ -6,7 +6,6 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '../../components/Sidebar';
 import { useFeedStore } from '../../store';
-import { GithubSVG } from '../../components/GithubSVG';
 import {
   User,
   Mail,
@@ -14,7 +13,8 @@ import {
   ExternalLink,
   CheckCircle2,
   Loader2,
-  MessageSquare
+  MessageSquare,
+  Github
 } from 'lucide-react';
 
 export default function SettingsPage() {
@@ -118,7 +118,7 @@ export default function SettingsPage() {
               <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
                 <div className="flex items-center gap-3">
                   <div className="p-2 rounded-lg bg-zinc-800">
-                    <GithubSVG size={18} className="text-white" />
+                    <Github size={18} className="text-white" />
                   </div>
                   <div>
                     <p className="text-white font-medium">GitHub</p>
