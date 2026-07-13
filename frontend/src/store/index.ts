@@ -33,6 +33,7 @@ interface FeedStore {
   triggerFetch: (userId: string) => Promise<void>;
   triggerAnalyze: (userId: string) => Promise<void>;
   connectIntegration: (userId: string, toolName: string) => Promise<void>;
+  disconnectIntegration: (userId: string, toolName: string) => Promise<void>;
   resolveItem: (itemId: number) => Promise<void>;
   clearError: () => void;
 }
@@ -72,6 +73,23 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       set({ integrationStatus: response.data });
     } catch (error) {
       console.error('Failed to fetch integration status:', error);
+    }
+  },
+
+  disconnectIntegration: async (userId: string, toolName: string) => {
+    try {
+      await axios.post(`${API_BASE_URL}/auth/disconnect-tool`, {
+        user_id: userId,
+        tool_name: toolName
+      });
+      // Optimistically update the status locally
+      const currentStatus = { ...get().integrationStatus };
+      if (toolName === 'github') currentStatus.github = false;
+      if (toolName === 'gmail' || toolName === 'google') currentStatus.gmail = false;
+      if (toolName === 'slack') currentStatus.slack = false;
+      set({ integrationStatus: currentStatus });
+    } catch {
+      set({ error: 'Failed to disconnect integration.' });
     }
   },
 

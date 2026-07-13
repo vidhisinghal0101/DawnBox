@@ -105,6 +105,29 @@ async def connect_tool(req: ConnectToolRequest, db: AsyncSession = Depends(get_d
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.post("/disconnect-tool")
+async def disconnect_tool(req: ConnectToolRequest, db: AsyncSession = Depends(get_db)):
+    try:
+        # For Gmail, the tool_name could be "gmail" or "google", so we handle both if requested.
+        tool_names = ["google", "gmail"] if req.tool_name in ["google", "gmail"] else [req.tool_name]
+        
+        result = await db.execute(
+            select(Integration).where(
+                Integration.user_id == req.user_id, 
+                Integration.tool_name.in_(tool_names)
+            )
+        )
+        integrations = result.scalars().all()
+        
+        for integration in integrations:
+            integration.is_active = False
+            
+        await db.commit()
+        return {"status": "success", "tool": req.tool_name}
+    except Exception as e:
+        logger.error(f"Error disconnecting tool {req.tool_name}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/status/{user_id}")
 async def integration_status(user_id: str, db: AsyncSession = Depends(get_db)):
     try:

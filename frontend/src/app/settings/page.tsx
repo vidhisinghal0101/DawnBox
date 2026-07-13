@@ -20,7 +20,7 @@ import {
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { integrationStatus, fetchIntegrationStatus, connectIntegration } = useFeedStore();
+  const { integrationStatus, fetchIntegrationStatus, connectIntegration, disconnectIntegration } = useFeedStore();
 
   const userId = (session?.user as unknown as { id: string })?.id || "1";
 
@@ -101,7 +101,13 @@ export default function SettingsPage() {
                   {integrationStatus.gmail ? (
                     <>
                       <CheckCircle2 size={16} className="text-green-500" />
-                      <span className="text-green-400 font-medium">Connected</span>
+                      <span className="text-green-400 font-medium mr-2">Connected</span>
+                      <button 
+                        onClick={() => disconnectIntegration(userId, 'google')}
+                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                      >
+                        Disconnect
+                      </button>
                     </>
                   ) : (
                     <button 
@@ -129,7 +135,13 @@ export default function SettingsPage() {
                   {integrationStatus.github ? (
                     <>
                       <CheckCircle2 size={16} className="text-green-500" />
-                      <span className="text-green-400 font-medium">Connected</span>
+                      <span className="text-green-400 font-medium mr-2">Connected</span>
+                      <button 
+                        onClick={() => disconnectIntegration(userId, 'github')}
+                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                      >
+                        Disconnect
+                      </button>
                     </>
                   ) : (
                     <button 
@@ -157,7 +169,13 @@ export default function SettingsPage() {
                   {integrationStatus.slack ? (
                     <>
                       <CheckCircle2 size={16} className="text-green-500" />
-                      <span className="text-green-400 font-medium">Connected</span>
+                      <span className="text-green-400 font-medium mr-2">Connected</span>
+                      <button 
+                        onClick={() => disconnectIntegration(userId, 'slack')}
+                        className="px-3 py-1.5 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-semibold rounded-md transition-colors"
+                      >
+                        Disconnect
+                      </button>
                     </>
                   ) : (
                     <button 
