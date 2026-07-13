@@ -21,8 +21,8 @@ export default function Home() {
     }
   }, [status, router]);
 
-  // @ts-ignore
-  const userId = (session?.user as any)?.id || 1;
+  // @ts-expect-error - NextAuth user types don't include id by default
+  const userId = (session?.user as unknown as { id: number })?.id || 1;
 
   useEffect(() => {
     if (status === 'authenticated') {

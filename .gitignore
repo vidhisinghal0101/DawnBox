@@ -16,3 +16,4 @@ frontend/build/
 *.sqlite3
 .vercel
 .env*.local
+.env*

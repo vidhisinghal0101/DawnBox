@@ -5,11 +5,11 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '../../components/Sidebar';
 import { useFeedStore } from '../../store';
-import { 
-  User, 
-  Mail, 
-  GitBranch, 
-  Shield, 
+import {
+  User,
+  Mail,
+  GitBranch,
+  Shield,
   ExternalLink,
   CheckCircle2,
   XCircle,
@@ -22,8 +22,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { integrationStatus, fetchIntegrationStatus } = useFeedStore();
 
-  // @ts-ignore
-  const userId = (session?.user as any)?.id || 1;
+  const userId = (session?.user as unknown as { id: number })?.id || 1;
 
   useEffect(() => {
     if (status === 'authenticated') {
@@ -49,7 +48,7 @@ export default function SettingsPage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex font-sans selection:bg-purple-500/30">
       <Sidebar />
-      
+
       <main className="flex-1 ml-64 p-8">
         <div className="max-w-3xl mx-auto">
           <header className="mb-8">
@@ -63,7 +62,7 @@ export default function SettingsPage() {
               <User size={18} className="text-zinc-400" />
               <h2 className="text-lg font-semibold text-zinc-200">Profile</h2>
             </div>
-            
+
             <div className="flex items-center gap-4">
               {user?.image ? (
                 <img src={user.image} alt="Avatar" className="w-16 h-16 rounded-full border-2 border-zinc-700 shadow-xl" />
@@ -85,7 +84,7 @@ export default function SettingsPage() {
               <Shield size={18} className="text-zinc-400" />
               <h2 className="text-lg font-semibold text-zinc-200">Connected Accounts</h2>
             </div>
-            
+
             <div className="space-y-4">
               {/* Google Account */}
               <div className="flex items-center justify-between p-4 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
@@ -174,7 +173,7 @@ export default function SettingsPage() {
               <h2 className="text-lg font-semibold text-zinc-200">About DawnBox</h2>
             </div>
             <p className="text-zinc-400 text-sm leading-relaxed mb-3">
-              DawnBox is an AI-powered developer dashboard that uses Gemini to intelligently prioritize 
+              DawnBox is an AI-powered developer dashboard that uses Gemini to intelligently prioritize
               your GitHub notifications and Gmail messages. It helps you focus on what matters most.
             </p>
             <div className="flex items-center gap-4 text-xs text-zinc-500">
