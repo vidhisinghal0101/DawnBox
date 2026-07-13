@@ -93,7 +93,7 @@ export function ItemCard({ item }: { item: FeedItem }) {
           {getTagIcon(item.priority_tag)}
           {item.priority_tag}
         </span>
-        <p className="text-xs text-muted-foreground italic truncate flex-1">
+        <p className="text-xs text-muted-foreground italic flex-1 leading-relaxed">
           <span className="text-blue-400/80 not-italic mr-1">AI Note:</span>
           {item.ai_explanation}
         </p>
