@@ -60,7 +60,7 @@ export function Sidebar() {
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Integrations</p>
           <nav className="space-y-1">
             <a 
-              href="https://github.com/settings/applications" 
+              href="https://github.com/vidhisinghal0101" 
               target="_blank" 
               rel="noopener noreferrer"
               className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"

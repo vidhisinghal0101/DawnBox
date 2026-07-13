@@ -13,6 +13,7 @@ fastapi
 filetype
 google-auth
 groq
+greenlet
 h11
 httpcore
 httptools
@@ -21,7 +22,6 @@ idna
 jsonpatch
 jsonpointer
 langchain-core
-langchain-protocol
 langgraph
 langgraph-checkpoint
 langgraph-prebuilt
