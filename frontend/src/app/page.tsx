@@ -5,9 +5,8 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useFeedStore } from '../store';
 import { Sidebar } from '../components/Sidebar';
-import { ItemCard } from '../components/ItemCard';
 import { BriefingPanel } from '../components/BriefingPanel';
-import { Loader2, RefreshCw, Layers, CheckCircle2, AlertCircle, Sparkles, LayoutList, LayoutGrid } from 'lucide-react';
+import { Loader2, RefreshCw, Layers, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 
 export default function Home() {
   const { data: session, status } = useSession();
