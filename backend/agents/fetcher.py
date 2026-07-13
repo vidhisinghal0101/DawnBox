@@ -158,10 +158,11 @@ async def fetch_data(state: AgentState):
         else:
             print(f"No active Slack integration found for user {user_id}")
 
-    # Fallback/Empty message if no data found
-    if not items:
-        now = datetime.datetime.now(datetime.timezone.utc)
-        items = [
+    # Inject Mock Data for mock integrations
+    now = datetime.datetime.now(datetime.timezone.utc)
+    
+    if github_int and github_int.access_token and github_int.access_token.startswith("mock_"):
+        items.extend([
             {
                 "tool_name": "github",
                 "external_id": "mock_gh_1",
@@ -172,15 +173,6 @@ async def fetch_data(state: AgentState):
                 "timestamp": now.isoformat()
             },
             {
-                "tool_name": "gmail",
-                "external_id": "mock_gm_1",
-                "title": "URGENT: Production database latency alert",
-                "content": "We are seeing elevated latency on the primary database cluster. Please investigate immediately.",
-                "url": "https://mail.google.com",
-                "author": "Datadog Alerts",
-                "timestamp": (now - datetime.timedelta(minutes=15)).isoformat()
-            },
-            {
                 "tool_name": "github",
                 "external_id": "mock_gh_2",
                 "title": "Issue #42: Button text is misaligned on mobile",
@@ -188,15 +180,19 @@ async def fetch_data(state: AgentState):
                 "url": "https://github.com",
                 "author": "sarah-design",
                 "timestamp": (now - datetime.timedelta(hours=2)).isoformat()
-            },
+            }
+        ])
+
+    if gmail_int and gmail_int.access_token and gmail_int.access_token.startswith("mock_"):
+        items.extend([
             {
-                "tool_name": "slack",
-                "external_id": "mock_sl_1",
-                "title": "Message in #engineering",
-                "content": "Hey team, are we still doing the deployment at 3 PM today?",
-                "url": "https://slack.com",
-                "author": "john.doe",
-                "timestamp": (now - datetime.timedelta(hours=1)).isoformat()
+                "tool_name": "gmail",
+                "external_id": "mock_gm_1",
+                "title": "URGENT: Production database latency alert",
+                "content": "We are seeing elevated latency on the primary database cluster. Please investigate immediately.",
+                "url": "https://mail.google.com",
+                "author": "Datadog Alerts",
+                "timestamp": (now - datetime.timedelta(minutes=15)).isoformat()
             },
             {
                 "tool_name": "gmail",
@@ -207,6 +203,33 @@ async def fetch_data(state: AgentState):
                 "author": "Tech Weekly",
                 "timestamp": (now - datetime.timedelta(hours=5)).isoformat()
             }
-        ]
+        ])
+
+    if slack_int and slack_int.access_token and slack_int.access_token.startswith("mock_"):
+        items.extend([
+            {
+                "tool_name": "slack",
+                "external_id": "mock_sl_1",
+                "title": "Message in #engineering",
+                "content": "Hey team, are we still doing the deployment at 3 PM today?",
+                "url": "https://slack.com",
+                "author": "john.doe",
+                "timestamp": (now - datetime.timedelta(hours=1)).isoformat()
+            }
+        ])
         
+    # If the user has completely empty dashboard, give them a welcome dummy data
+    if not items:
+        items.extend([
+            {
+                "tool_name": "github",
+                "external_id": "welcome_1",
+                "title": "Welcome to DawnBox",
+                "content": "Connect your integrations in the Settings page to get started!",
+                "url": "https://github.com",
+                "author": "DawnBox",
+                "timestamp": now.isoformat()
+            }
+        ])
+
     return {"fetched_items": items}
