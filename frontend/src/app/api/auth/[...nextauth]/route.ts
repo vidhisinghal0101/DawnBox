@@ -32,7 +32,6 @@ export const authOptions: NextAuthOptions = {
       authorization: {
         params: {
           scope: 'openid profile email', // Basic login scopes
-          prompt: 'select_account',
         },
       },
     }),
