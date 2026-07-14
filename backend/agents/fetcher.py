@@ -79,10 +79,6 @@ async def fetch_data(state: AgentState):
         )
         gmail_int = result.scalars().first()
         
-        access_token = gmail_int.access_token if gmail_int else None
-        print(f"Token exists: {access_token is not None}")
-        print(f"Token value: {access_token[:20] if access_token else 'NONE'}")
-        
         if gmail_int and gmail_int.access_token:
             try:
                 print(f"CALLING GMAIL API with token: {gmail_int.access_token[:20]}...")

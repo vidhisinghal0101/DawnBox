@@ -6,8 +6,11 @@ from sqlalchemy.orm import declarative_base
 # Load .env file
 load_dotenv()
 
-# Use DATABASE_URL from environment if it exists (e.g., Neon Postgres), otherwise fallback to local SQLite
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./dawnbox.db")
+# Use DATABASE_URL from environment (e.g., Neon Postgres)
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+if not DATABASE_URL:
+    raise ValueError("DATABASE_URL environment variable is required!")
 
 # If user provided a postgres:// url from Neon, we must use the asyncpg driver
 if DATABASE_URL.startswith("postgres://"):
