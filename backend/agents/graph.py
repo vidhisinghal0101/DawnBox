@@ -7,7 +7,7 @@ import asyncio
 import datetime
 
 # We need a way to run database operations async in the graph, or wrap it.
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from database import AsyncSessionLocal
 from models import Item, Summary, UserFeedback
 
