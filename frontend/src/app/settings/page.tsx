@@ -131,8 +131,13 @@ export default function SettingsPage() {
                           } else {
                             // Map 'gmail' integration ID to NextAuth's 'google' provider ID
                             const providerId = integration.id === 'gmail' ? 'google' : integration.id;
-                            const promptValue = providerId === 'github' ? 'login' : 'select_account';
-                            signIn(providerId, { callbackUrl: '/settings' }, { prompt: promptValue });
+                            const options: Record<string, string> = {};
+                            if (providerId === 'github') {
+                              options.prompt = 'login';
+                            } else if (providerId === 'google') {
+                              options.prompt = 'select_account';
+                            }
+                            signIn(providerId, { callbackUrl: '/settings' }, options);
                           }
                         }}
                         className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-300 border ${
