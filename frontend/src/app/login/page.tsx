@@ -24,7 +24,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-3">
             <button
-              onClick={() => signIn('github', { callbackUrl: '/' })}
+              onClick={() => signIn('github', { callbackUrl: '/' }, { prompt: 'select_account' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black hover:bg-zinc-200 transition-all font-semibold rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.1)] group"
             >
               <FaGithub size={20} className="text-black group-hover:-translate-y-0.5 transition-transform" />
@@ -32,7 +32,7 @@ export default function LoginPage() {
             </button>
 
             <button
-              onClick={() => signIn('google', { callbackUrl: '/' })}
+              onClick={() => signIn('google', { callbackUrl: '/' }, { prompt: 'select_account' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-zinc-900 text-white border border-white/10 hover:bg-zinc-800 transition-all font-semibold rounded-xl group"
             >
               <Mail size={20} className="text-white group-hover:-translate-y-0.5 transition-transform" />
@@ -40,7 +40,7 @@ export default function LoginPage() {
             </button>
 
             <button
-              onClick={() => signIn('slack', { callbackUrl: '/' })}
+              onClick={() => signIn('slack', { callbackUrl: '/' }, { prompt: 'select_account' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-[#4A154B] text-white border border-white/10 hover:bg-[#3d113e] transition-all font-semibold rounded-xl group"
             >
               <MessageSquare size={20} className="text-white group-hover:-translate-y-0.5 transition-transform" />
