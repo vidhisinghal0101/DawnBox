@@ -6,11 +6,11 @@ from sqlalchemy.orm import declarative_base
 # Load .env file
 load_dotenv()
 
-# Use DATABASE_URL from environment (e.g., Neon Postgres)
-DATABASE_URL = os.getenv("DATABASE_URL")
+# Use DATABASE_URL, DATABASE_URI, or DB_URL from environment (e.g., Neon Postgres)
+DATABASE_URL = os.getenv("DATABASE_URL") or os.getenv("DATABASE_URI") or os.getenv("DB_URL")
 
 if not DATABASE_URL:
-    raise ValueError("DATABASE_URL environment variable is required!")
+    raise ValueError("DATABASE_URL, DATABASE_URI, or DB_URL environment variable is required!")
 
 # If user provided a postgres:// url from Neon, we must use the asyncpg driver
 if DATABASE_URL.startswith("postgres://"):
