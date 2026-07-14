@@ -36,13 +36,29 @@ async def fetch_data(state: AgentState):
                     resp = await client.get("https://api.github.com/notifications", headers=headers)
                     if resp.status_code == 200:
                         notifications = resp.json()
+                        
+                        # Friendly mapping for GitHub notification reasons
+                        reason_map = {
+                            "author": "You created this thread",
+                            "mention": "You were explicitly mentioned",
+                            "team_mention": "Your team was mentioned",
+                            "review_requested": "Code review requested from you",
+                            "subscribed": "You subscribed to updates",
+                            "comment": "New comment on this thread",
+                            "assign": "You were assigned to this",
+                            "state_change": "Thread state changed"
+                        }
+                        
                         for note in notifications[:10]:
                             url_val = note["subject"].get("url")
+                            reason_raw = note.get("reason", "update")
+                            friendly_reason = reason_map.get(reason_raw, f"New update: {reason_raw}")
+                            
                             items.append({
                                 "tool_name": "github",
                                 "external_id": note["id"],
                                 "title": note["subject"]["title"],
-                                "content": f"New notification: {note['reason']}",
+                                "content": friendly_reason,
                                 "url": url_val.replace("api.github.com/repos", "github.com") if url_val else "https://github.com",
                                 "author": note["repository"]["full_name"],
                                 "timestamp": datetime.datetime.strptime(note["updated_at"], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=datetime.timezone.utc).isoformat()
