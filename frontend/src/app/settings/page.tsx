@@ -18,7 +18,7 @@ import { FaGithub } from 'react-icons/fa';
 
 const INTEGRATIONS = [
   {
-    id: 'google',
+    id: 'gmail',
     name: 'Google / Gmail',
     description: 'Read and analyze your inbox',
     icon: <Mail size={18} className="text-red-400" />,
@@ -124,7 +124,6 @@ export default function SettingsPage() {
                       </div>
                     </div>
                     <div className="flex items-center gap-3">
-                      <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
                       <button 
                         onClick={() => isConnected ? disconnectIntegration(userId, integration.id) : connectIntegration(userId, integration.id)}
                         className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-300 border ${
