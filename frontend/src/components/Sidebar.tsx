@@ -32,21 +32,21 @@ export function Sidebar() {
   }, [status, userId, fetchIntegrationStatus]);
 
   return (
-    <aside className="w-64 h-screen glass-panel fixed left-0 top-0 border-r border-border flex flex-col p-4 z-10">
+    <aside className="w-64 h-screen bg-slate-900/40 backdrop-blur-2xl fixed left-0 top-0 border-r border-white/5 flex flex-col p-4 z-10">
       <div className="flex items-center gap-3 mb-10 mt-2 px-2">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)]">
           <BrainCircuit size={20} className="text-white" />
         </div>
-        <h1 className="font-bold text-xl tracking-tight text-white">DawnBox</h1>
+        <h1 className="font-bold text-xl tracking-tight text-white drop-shadow-sm">DawnBox</h1>
       </div>
 
       <div className="space-y-6 flex-1">
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Main</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-2">Main</p>
           <nav className="space-y-1">
             <Link
               href="/"
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-md font-medium transition-colors ${pathname === '/' ? 'bg-secondary text-white' : 'text-muted-foreground hover:bg-secondary/50 hover:text-white'
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-300 ${pathname === '/' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 shadow-[0_0_15px_rgba(99,102,241,0.1)]' : 'border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200 hover:border-white/10'
                 }`}
             >
               <LayoutDashboard size={18} />
@@ -56,43 +56,43 @@ export function Sidebar() {
         </div>
 
         <div>
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 px-2">Integrations</p>
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3 px-2">Integrations</p>
           <nav className="space-y-1">
             <a
               href="https://github.com/vidhisinghal0101"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
+              className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <FaGithub size={18} />
                 <span>GitHub</span>
               </div>
-              <div className={`w-2 h-2 rounded-full ${integrationStatus.github ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${integrationStatus.github ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
             </a>
             <a
               href="https://mail.google.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
+              className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <Mail size={18} />
                 <span>Gmail</span>
               </div>
-              <div className={`w-2 h-2 rounded-full ${integrationStatus.gmail ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${integrationStatus.gmail ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
             </a>
             <a
               href="https://slack.com"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-between px-3 py-2.5 rounded-md hover:bg-secondary/50 text-muted-foreground hover:text-white transition-colors cursor-pointer"
+              className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-3">
                 <MessageSquare size={18} />
                 <span>Slack</span>
               </div>
-              <div className={`w-2 h-2 rounded-full ${integrationStatus.slack ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]' : 'bg-zinc-600'}`}></div>
+              <div className={`w-2 h-2 rounded-full ${integrationStatus.slack ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
             </a>
           </nav>
         </div>
@@ -100,28 +100,28 @@ export function Sidebar() {
 
       {/* User Profile */}
       {user && (
-        <div className="mb-3 px-2 py-3 rounded-lg bg-zinc-900/50 border border-zinc-800/50">
+        <div className="mb-4 px-3 py-3 rounded-xl bg-white/5 border border-white/10 shadow-lg">
           <div className="flex items-center gap-3">
             {user.image ? (
-              <img src={user.image} alt="" className="w-8 h-8 rounded-full" />
+              <img src={user.image} alt="" className="w-9 h-9 rounded-full ring-2 ring-white/10" />
             ) : (
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-sm font-bold ring-2 ring-white/10 shadow-[0_0_10px_rgba(99,102,241,0.3)]">
                 {user.name?.charAt(0) || '?'}
               </div>
             )}
             <div className="truncate">
-              <p className="text-sm text-white font-medium truncate">{user.name || 'Developer'}</p>
-              <p className="text-xs text-zinc-500 truncate">{user.email || ''}</p>
+              <p className="text-sm text-slate-200 font-semibold truncate tracking-tight">{user.name || 'Developer'}</p>
+              <p className="text-xs text-slate-500 truncate font-medium">{user.email || ''}</p>
             </div>
           </div>
         </div>
       )}
 
-      <div className="pt-4 border-t border-border">
+      <div className="pt-4 border-t border-white/5">
         <nav className="space-y-1">
           <Link
             href="/settings"
-            className={`flex items-center gap-3 px-3 py-2.5 rounded-md transition-colors ${pathname === '/settings' ? 'bg-secondary text-white' : 'text-muted-foreground hover:bg-secondary/50 hover:text-white'
+            className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-300 ${pathname === '/settings' ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30' : 'border border-transparent text-slate-400 hover:bg-white/5 hover:text-slate-200 hover:border-white/10'
               }`}
           >
             <Settings size={18} />
@@ -129,7 +129,7 @@ export function Sidebar() {
           </Link>
           <button
             onClick={() => signOut({ callbackUrl: '/login' })}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md hover:bg-red-500/10 text-muted-foreground hover:text-red-400 transition-colors"
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium border border-transparent hover:bg-red-500/10 text-slate-400 hover:text-red-400 hover:border-red-500/20 transition-all duration-300"
           >
             <LogOut size={18} />
             <span>Logout</span>

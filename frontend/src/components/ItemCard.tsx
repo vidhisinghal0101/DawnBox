@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2, Check, Clock } from 'lucide-react';
 import { FaGithub } from 'react-icons/fa';
-import { formatDistanceToNow } from 'date-fns';
+import { formatDistanceToNow, format } from 'date-fns';
 import { FeedItem, useFeedStore } from '../store';
 
 export function ItemCard({ item }: { item: FeedItem }) {
   const isGithub = item.tool_name === 'github';
   const resolveItem = useFeedStore(state => state.resolveItem);
   const snoozeItem = useFeedStore(state => state.snoozeItem);
+  const unsnoozeItem = useFeedStore(state => state.unsnoozeItem);
   const [showSnooze, setShowSnooze] = useState(false);
   
   const getTagStyle = (tag: string) => {
@@ -56,6 +57,11 @@ export function ItemCard({ item }: { item: FeedItem }) {
     setShowSnooze(!showSnooze);
   };
 
+  const handleUnsnooze = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    unsnoozeItem(item.id);
+  };
+
   const handleSnooze = (e: React.MouseEvent, option: string) => {
     e.stopPropagation();
     const date = new Date();
@@ -76,8 +82,8 @@ export function ItemCard({ item }: { item: FeedItem }) {
   return (
     <div 
       onClick={handleClick}
-      className={`glass-panel rounded-xl p-5 hover:bg-zinc-800/80 transition-all group cursor-pointer border ${
-        item.is_resolved ? 'border-green-500/20 opacity-75' : 'border-transparent hover:border-zinc-700/50'
+      className={`glass-panel p-5 rounded-2xl transition-all duration-300 group hover:-translate-y-1 hover:shadow-2xl hover:shadow-indigo-500/10 cursor-pointer border-l-4 ${
+        item.is_resolved ? 'border-green-500/20 opacity-75' : 'border-l-indigo-500/50 hover:border-l-indigo-400'
       }`}
     >
       <div className="flex justify-between items-start mb-3">
@@ -91,12 +97,12 @@ export function ItemCard({ item }: { item: FeedItem }) {
             </span>
           </div>
           <div>
-            <h3 className="font-semibold text-lg text-white group-hover:text-blue-400 transition-colors flex items-start gap-2 max-w-[550px]">
+            <h3 className="font-semibold text-lg text-slate-100 group-hover:text-indigo-300 transition-colors flex items-start gap-2 max-w-[550px] drop-shadow-sm">
               {item.title}
-              <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-400" />
+              <ExternalLink size={14} className="opacity-0 group-hover:opacity-100 transition-opacity text-indigo-400" />
             </h3>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium text-zinc-300">{item.author}</span>
+            <div className="flex items-center gap-2 text-sm text-slate-400 font-medium">
+              <span>{item.author}</span>
               <span>•</span>
               <span>{formatDistanceToNow(new Date(item.timestamp), { addSuffix: true })}</span>
             </div>
@@ -107,18 +113,31 @@ export function ItemCard({ item }: { item: FeedItem }) {
             <span className={`text-xs font-bold px-2 py-1 rounded-md ${getScoreColor(item.priority_score)} bg-black/40`}>
               Score: {item.priority_score}/10
             </span>
-            {!item.is_resolved ? (
+            {item.snoozed_until ? (
+              <div className="flex flex-col items-end gap-1">
+                <span className="text-[10px] font-medium text-indigo-300 bg-indigo-500/10 px-2 py-0.5 rounded-full border border-indigo-500/20 shadow-[0_0_10px_rgba(99,102,241,0.1)]">
+                  Wakes up at {format(new Date(item.snoozed_until), "MMM d, h:mm a")}
+                </span>
+                <button 
+                  onClick={handleUnsnooze}
+                  className="text-xs flex items-center gap-1.5 font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-indigo-500/20 text-slate-300 hover:text-indigo-300 transition-all border border-white/10 hover:border-indigo-500/30 mt-1"
+                >
+                  <Clock size={14} className="text-indigo-400" />
+                  Unsnooze
+                </button>
+              </div>
+            ) : !item.is_resolved ? (
               <div className="flex items-center gap-2 relative">
                 <button 
                   onClick={handleResolve}
-                  className="text-xs flex items-center gap-1.5 font-medium px-2 py-1.5 rounded-md bg-zinc-800 hover:bg-green-500/20 text-zinc-400 hover:text-green-400 transition-colors border border-zinc-700 hover:border-green-500/30"
+                  className="text-xs flex items-center gap-1.5 font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-green-500/20 text-slate-300 hover:text-green-400 transition-all border border-white/10 hover:border-green-500/30"
                 >
                   <Check size={14} />
                   Mark as Done
                 </button>
                 <button 
                   onClick={handleSnoozeToggle}
-                  className="text-xs flex items-center gap-1.5 font-medium px-2 py-1.5 rounded-md bg-zinc-800 hover:bg-yellow-500/20 text-zinc-400 hover:text-yellow-400 transition-colors border border-zinc-700 hover:border-yellow-500/30"
+                  className="text-xs flex items-center gap-1.5 font-medium px-3 py-1.5 rounded-lg bg-white/5 hover:bg-yellow-500/20 text-slate-300 hover:text-yellow-400 transition-all border border-white/10 hover:border-yellow-500/30"
                 >
                   <Clock size={14} />
                   Snooze
@@ -126,22 +145,22 @@ export function ItemCard({ item }: { item: FeedItem }) {
 
                 {/* Snooze Dropdown */}
                 {showSnooze && (
-                  <div className="absolute right-0 top-full mt-1 w-48 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg z-10 py-1 overflow-hidden">
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-slate-900 border border-slate-700/50 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.5)] z-10 py-1 overflow-hidden backdrop-blur-xl">
                     <button 
                       onClick={(e) => handleSnooze(e, 'today')}
-                      className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
                     >
                       Later Today (In 4 hrs)
                     </button>
                     <button 
                       onClick={(e) => handleSnooze(e, 'tomorrow')}
-                      className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
                     >
                       Tomorrow Morning (9 AM)
                     </button>
                     <button 
                       onClick={(e) => handleSnooze(e, 'next_week')}
-                      className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                      className="w-full text-left px-4 py-2.5 text-xs text-slate-300 hover:bg-white/10 hover:text-white transition-colors"
                     >
                       Next Week (Mon 9 AM)
                     </button>
@@ -149,7 +168,7 @@ export function ItemCard({ item }: { item: FeedItem }) {
                 )}
               </div>
             ) : (
-              <span className="text-xs flex items-center gap-1.5 font-medium px-2 py-1 rounded-md bg-green-500/10 text-green-500 border border-green-500/20">
+              <span className="text-xs flex items-center gap-1.5 font-medium px-3 py-1.5 rounded-lg bg-green-500/10 text-green-400 border border-green-500/20 shadow-[0_0_10px_rgba(34,197,94,0.1)]">
                 <CheckCircle2 size={14} />
                 Completed
               </span>
@@ -158,18 +177,18 @@ export function ItemCard({ item }: { item: FeedItem }) {
         </div>
       </div>
       
-      <p className="text-zinc-300 text-sm mb-4 line-clamp-2 leading-relaxed">
+      <p className="text-slate-300 text-sm mb-4 line-clamp-2 leading-relaxed">
         {item.content}
       </p>
       
-      <div className="flex items-center gap-3 pt-3 border-t border-zinc-800/50">
-        <span className={`flex items-center text-xs font-medium px-2.5 py-1 rounded-full ${getTagStyle(item.priority_tag)}`}>
+      <div className="flex items-center gap-3 pt-4 border-t border-white/5">
+        <span className={`flex items-center text-xs font-semibold px-3 py-1.5 rounded-lg ${getTagStyle(item.priority_tag)}`}>
           {getTagIcon(item.priority_tag)}
           {item.priority_tag}
         </span>
-        <p className="text-xs text-muted-foreground italic flex-1 leading-relaxed">
-          <span className="text-blue-400/80 not-italic mr-1">AI Note:</span>
-          {item.ai_explanation}
+        <p className="text-xs text-slate-400 italic flex-1 leading-relaxed border-l border-white/10 pl-3">
+          <span className="text-indigo-400 font-semibold not-italic mr-1">AI Insight:</span>
+          {item.ai_explanation || 'AI analysis pending...'}
         </p>
       </div>
     </div>

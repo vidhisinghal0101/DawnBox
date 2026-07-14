@@ -32,6 +32,22 @@ async def get_items(user_id: str, db: AsyncSession = Depends(get_db)):
         logger.error(traceback.format_exc())
         raise HTTPException(status_code=500, detail=str(e))
 
+@router.get("/items/{user_id}/snoozed")
+async def get_snoozed_items(user_id: str, db: AsyncSession = Depends(get_db)):
+    logger.info(f"Fetching snoozed items for user: {user_id}")
+    try:
+        result = await db.execute(
+            select(Item)
+            .where(Item.user_id == user_id)
+            .where(Item.snoozed_until > datetime.utcnow())
+            .order_by(Item.snoozed_until)
+        )
+        items = result.scalars().all()
+        return items
+    except Exception as e:
+        logger.error(f"Error fetching snoozed items for {user_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @router.get("/briefing/{user_id}")
 async def get_briefing(user_id: str, db: AsyncSession = Depends(get_db)):
     try:
@@ -75,6 +91,20 @@ async def snooze_item(item_id: int, req: SnoozeRequest, db: AsyncSession = Depen
         return {"status": "success", "snoozed_until": item.snoozed_until}
     except Exception as e:
         logger.error(f"Error snoozing item {item_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/items/{item_id}/unsnooze")
+async def unsnooze_item(item_id: int, db: AsyncSession = Depends(get_db)):
+    try:
+        result = await db.execute(select(Item).where(Item.id == item_id))
+        item = result.scalars().first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        item.snoozed_until = None
+        await db.commit()
+        return {"status": "success"}
+    except Exception as e:
+        logger.error(f"Error unsnoozing item {item_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/trigger-pipeline/{user_id}")

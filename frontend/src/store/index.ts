@@ -22,6 +22,7 @@ export interface FeedItem {
 
 interface FeedStore {
   items: FeedItem[];
+  snoozedItems: FeedItem[];
   briefing: string;
   loading: boolean;
   error: string | null;
@@ -29,6 +30,7 @@ interface FeedStore {
   analyzeStatus: 'idle' | 'running' | 'success' | 'error';
   integrationStatus: { github: boolean, gmail: boolean, slack: boolean };
   fetchItems: (userId: string) => Promise<void>;
+  fetchSnoozedItems: (userId: string) => Promise<void>;
   fetchBriefing: (userId: string) => Promise<void>;
   fetchIntegrationStatus: (userId: string) => Promise<void>;
   triggerFetch: (userId: string) => Promise<void>;
@@ -37,11 +39,13 @@ interface FeedStore {
   disconnectIntegration: (userId: string, toolName: string) => Promise<void>;
   resolveItem: (itemId: number) => Promise<void>;
   snoozeItem: (itemId: number, snoozedUntil: string) => Promise<void>;
+  unsnoozeItem: (itemId: number) => Promise<void>;
   clearError: () => void;
 }
 
 export const useFeedStore = create<FeedStore>((set, get) => ({
   items: [],
+  snoozedItems: [],
   briefing: '',
   loading: false,
   error: null,
@@ -102,6 +106,15 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       await get().fetchIntegrationStatus(userId);
     } catch (error) {
       console.error(`Failed to connect ${toolName}:`, error);
+    }
+  },
+
+  fetchSnoozedItems: async (userId: string) => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/feed/items/${userId}/snoozed`);
+      set({ snoozedItems: response.data });
+    } catch (err) {
+      console.error('Failed to fetch snoozed items:', err);
     }
   },
 
@@ -230,6 +243,22 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
     } catch (err) {
       console.error('Failed to snooze item:', err);
       // Let it fetch again to reset state
+    }
+  },
+
+  unsnoozeItem: async (itemId: number) => {
+    // Optimistically update UI
+    set(state => ({
+      snoozedItems: state.snoozedItems.filter(item => item.id !== itemId)
+    }));
+    try {
+      await axios.post(`${API_BASE_URL}/feed/items/${itemId}/unsnooze`);
+      // Refetch both feeds to update
+      const userId = "1"; // Hacky but works for demo
+      get().fetchItems(userId);
+      get().fetchSnoozedItems(userId);
+    } catch (err) {
+      console.error('Failed to unsnooze item:', err);
     }
   }
 }));
