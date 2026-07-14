@@ -20,25 +20,32 @@ class SyncUserRequest(BaseModel):
     access_token: Optional[str] = None
     refresh_token: Optional[str] = None
     provider: Optional[str] = "github"
+    existing_user_id: Optional[str] = None
 
 @router.post("/sync-user")
 async def sync_user(req: SyncUserRequest, db: AsyncSession = Depends(get_db)):
-    logger.info(f"Syncing user: {req.email} with ID: {req.id}")
+    logger.info(f"Syncing user: {req.email} with ID: {req.id}, existing_user_id: {req.existing_user_id}")
     try:
-        # Use req.id (the Google/GitHub ID string) as the primary key
-        # Check if user already exists by EMAIL for account linking
-        result = await db.execute(select(User).where(User.email == req.email))
-        user = result.scalars().first()
+        user = None
+        if req.existing_user_id:
+            # Try to fetch the currently logged-in user to link the new integration to their account
+            result = await db.execute(select(User).where(User.id == req.existing_user_id))
+            user = result.scalars().first()
+            
+        if not user:
+            # Fallback to check if user already exists by email for account linking
+            result = await db.execute(select(User).where(User.email == req.email))
+            user = result.scalars().first()
         
         if not user:
-            # First time logging in with this email
+            # First time logging in with this email/user
             user = User(id=req.id, email=req.email, name=req.name, image_url=req.image_url)
             db.add(user)
         else:
-            # Existing user found by email, update details
-            user.name = req.name
-            user.image_url = req.image_url
-            # We keep the original user.id to preserve database relationships
+            # User exists. Only update profile details if we are NOT linking a different account
+            if not req.existing_user_id:
+                user.name = req.name
+                user.image_url = req.image_url
             
         await db.commit()
         await db.refresh(user)

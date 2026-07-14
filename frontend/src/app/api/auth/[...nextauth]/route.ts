@@ -60,7 +60,8 @@ export const authOptions: NextAuthOptions = {
               image_url: user.image,
               access_token: account.access_token,
               refresh_token: account.refresh_token,
-              provider: account.provider, // "github" or "google"
+              provider: account.provider,
+              existing_user_id: token.userId || null,
             }),
           });
           
