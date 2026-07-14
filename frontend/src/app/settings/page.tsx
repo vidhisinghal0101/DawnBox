@@ -43,7 +43,7 @@ const INTEGRATIONS = [
 export default function SettingsPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
-  const { integrationStatus, fetchIntegrationStatus, connectIntegration, disconnectIntegration } = useFeedStore();
+  const { integrationStatus, fetchIntegrationStatus, disconnectIntegration } = useFeedStore();
 
   const userId = (session?.user as unknown as { id: string })?.id || "1";
 

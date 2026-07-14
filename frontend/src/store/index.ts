@@ -26,6 +26,19 @@ export interface IntegrationDetail {
   image_url?: string | null;
 }
 
+interface RawFeedItem {
+  external_id: string;
+  tool_name: string;
+  title: string;
+  content: string;
+  author: string;
+  timestamp: string;
+  url: string;
+  priority_score?: number;
+  priority_tag?: string;
+  ai_explanation?: string;
+}
+
 interface FeedStore {
   items: FeedItem[];
   snoozedItems: FeedItem[];
@@ -108,15 +121,15 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
 
   clearError: () => set({ error: null }),
 
-  fetchItems: async (userId: string) => {
+  fetchItems: async () => {
     // No-op: Data is kept in local state from triggerFetch response
   },
 
-  fetchBriefing: async (userId: string) => {
+  fetchBriefing: async () => {
     // No-op: Summary is kept in local state from triggerAnalyze response
   },
 
-  fetchSnoozedItems: async (userId: string) => {
+  fetchSnoozedItems: async () => {
     // No-op: Snoozed items are updated dynamically in local state
   },
 
@@ -168,7 +181,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       const mappedItems: FeedItem[] = [];
       const snoozedItems: FeedItem[] = [];
 
-      rawItems.forEach((it: any) => {
+      rawItems.forEach((it: RawFeedItem) => {
         const item: FeedItem = {
           id: it.external_id, // Use external_id as primary key
           user_id: userId,
@@ -229,7 +242,7 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       const summary = response.data.summary || '';
 
       set({ 
-        items: analyzedItems.map((it: any) => ({
+        items: analyzedItems.map((it: FeedItem) => ({
           ...it,
           id: it.external_id // Ensure id matches external_id
         })), 

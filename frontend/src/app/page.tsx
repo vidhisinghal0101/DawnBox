@@ -1,15 +1,13 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useSession, signIn } from 'next-auth/react';
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
-import { FaGithub } from 'react-icons/fa';
 import { useFeedStore } from '../store';
 import { Sidebar } from '../components/Sidebar';
 import { ItemCard } from '../components/ItemCard';
 import { BriefingPanel } from '../components/BriefingPanel';
-import { Loader2, RefreshCw, Layers, CheckCircle2, AlertCircle, Sparkles, BrainCircuit, Mail, MessageSquare } from 'lucide-react';
+import { Loader2, RefreshCw, Layers, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
 
 export default function Home() {
   const { data: session, status } = useSession();
