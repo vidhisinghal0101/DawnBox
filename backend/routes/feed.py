@@ -98,7 +98,14 @@ async def snooze_item(item_id: int, req: SnoozeRequest, db: AsyncSession = Depen
         item = result.scalars().first()
         if not item:
             raise HTTPException(status_code=404, detail="Item not found")
-        item.snoozed_until = req.snoozed_until
+        
+        # Convert timezone-aware datetime to naive UTC for Postgres compatibility
+        snoozed_dt = req.snoozed_until
+        if snoozed_dt.tzinfo is not None:
+            from datetime import timezone
+            snoozed_dt = snoozed_dt.astimezone(timezone.utc).replace(tzinfo=None)
+
+        item.snoozed_until = snoozed_dt
         await db.commit()
         return {"status": "success", "snoozed_until": item.snoozed_until}
     except Exception as e:

@@ -235,29 +235,32 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
   },
 
   snoozeItem: async (itemId: number, snoozedUntil: string) => {
-    // Optimistically update UI
+    const targetItem = get().items.find(item => item.id === itemId);
+    
     set(state => ({
-      items: state.items.filter(item => item.id !== itemId)
+      items: state.items.filter(item => item.id !== itemId),
+      snoozedItems: targetItem 
+        ? [...state.snoozedItems, { ...targetItem, snoozed_until: snoozedUntil }] 
+        : state.snoozedItems
     }));
     try {
       await axios.post(`${API_BASE_URL}/feed/items/${itemId}/snooze`, { snoozed_until: snoozedUntil });
     } catch (err) {
       console.error('Failed to snooze item:', err);
-      // Let it fetch again to reset state
     }
   },
 
   unsnoozeItem: async (itemId: number) => {
-    // Optimistically update UI
+    const targetItem = get().snoozedItems.find(item => item.id === itemId);
+    
     set(state => ({
-      snoozedItems: state.snoozedItems.filter(item => item.id !== itemId)
+      snoozedItems: state.snoozedItems.filter(item => item.id !== itemId),
+      items: targetItem 
+        ? [...state.items, { ...targetItem, snoozed_until: null }] 
+        : state.items
     }));
     try {
       await axios.post(`${API_BASE_URL}/feed/items/${itemId}/unsnooze`);
-      // Refetch both feeds to update
-      const userId = "1"; // Hacky but works for demo
-      get().fetchItems(userId);
-      get().fetchSnoozedItems(userId);
     } catch (err) {
       console.error('Failed to unsnooze item:', err);
     }
