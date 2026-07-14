@@ -110,7 +110,8 @@ export default function SettingsPage() {
 
             <div className="space-y-4">
               {INTEGRATIONS.map((integration) => {
-                const isConnected = integrationStatus[integration.id as keyof typeof integrationStatus];
+                const details = integrationStatus[integration.id as keyof typeof integrationStatus];
+                const isConnected = details?.connected || false;
                 
                 return (
                   <div key={integration.id} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-colors">
@@ -120,7 +121,22 @@ export default function SettingsPage() {
                       </div>
                       <div>
                         <p className="text-slate-200 font-semibold text-sm">{integration.name}</p>
-                        <p className="text-slate-500 text-xs mt-0.5">{integration.description}</p>
+                        {isConnected && details?.name ? (
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            {details.image_url ? (
+                              <img src={details.image_url} alt="" className="w-4 h-4 rounded-full ring-1 ring-white/10" />
+                            ) : (
+                              <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center text-[8px] font-bold text-white">
+                                {details.name.charAt(0)}
+                              </div>
+                            )}
+                            <span className="text-xs text-indigo-400 font-medium">
+                              Connected as {details.name}
+                            </span>
+                          </div>
+                        ) : (
+                          <p className="text-slate-500 text-xs mt-0.5">{integration.description}</p>
+                        )}
                       </div>
                     </div>
                     <div className="flex items-center gap-3">

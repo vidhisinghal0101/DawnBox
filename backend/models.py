@@ -22,6 +22,8 @@ class Integration(Base):
     refresh_token = Column(String, nullable=True)
     expires_at = Column(DateTime, nullable=True)
     is_active = Column(Boolean, default=True)
+    profile_name = Column(String, nullable=True)
+    profile_image = Column(String, nullable=True)
 
     user = relationship("User", back_populates="integrations")
 

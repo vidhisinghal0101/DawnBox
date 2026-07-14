@@ -57,6 +57,8 @@ async def sync_user(req: SyncUserRequest, db: AsyncSession = Depends(get_db)):
                 integration.access_token = req.access_token
                 if req.refresh_token:
                     integration.refresh_token = req.refresh_token
+                integration.profile_name = req.name
+                integration.profile_image = req.image_url
                 integration.is_active = True
             else:
                 new_integration = Integration(
@@ -64,6 +66,8 @@ async def sync_user(req: SyncUserRequest, db: AsyncSession = Depends(get_db)):
                     tool_name=req.provider,
                     access_token=req.access_token,
                     refresh_token=req.refresh_token,
+                    profile_name=req.name,
+                    profile_image=req.image_url,
                     is_active=True
                 )
                 db.add(new_integration)
@@ -94,7 +98,9 @@ async def connect_tool(req: ConnectToolRequest, db: AsyncSession = Depends(get_d
             integration = Integration(
                 user_id=req.user_id,
                 tool_name=req.tool_name,
-                access_token=f"mock_{req.tool_name}_token"
+                access_token=f"mock_{req.tool_name}_token",
+                profile_name=f"Mock {req.tool_name.capitalize()} Profile",
+                profile_image=None
             )
             db.add(integration)
         else:
@@ -134,10 +140,27 @@ async def integration_status(user_id: str, db: AsyncSession = Depends(get_db)):
         result = await db.execute(select(Integration).where(Integration.user_id == user_id))
         integrations = result.scalars().all()
         
+        # Build detailed status dictionary for each provider
+        github_int = next((i for i in integrations if i.tool_name == "github"), None)
+        gmail_int = next((i for i in integrations if i.tool_name in ["google", "gmail"]), None)
+        slack_int = next((i for i in integrations if i.tool_name == "slack"), None)
+
         return {
-            "github": any(i.tool_name == "github" and i.is_active for i in integrations),
-            "gmail": any(i.tool_name in ["google", "gmail"] and i.is_active for i in integrations),
-            "slack": any(i.tool_name == "slack" and i.is_active for i in integrations)
+            "github": {
+                "connected": github_int.is_active if github_int else False,
+                "name": github_int.profile_name if github_int else None,
+                "image_url": github_int.profile_image if github_int else None
+            },
+            "gmail": {
+                "connected": gmail_int.is_active if gmail_int else False,
+                "name": gmail_int.profile_name if gmail_int else None,
+                "image_url": gmail_int.profile_image if gmail_int else None
+            },
+            "slack": {
+                "connected": slack_int.is_active if slack_int else False,
+                "name": slack_int.profile_name if slack_int else None,
+                "image_url": slack_int.profile_image if slack_int else None
+            }
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

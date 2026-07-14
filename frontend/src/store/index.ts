@@ -20,6 +20,12 @@ export interface FeedItem {
   snoozed_until?: string | null;
 }
 
+export interface IntegrationDetail {
+  connected: boolean;
+  name?: string | null;
+  image_url?: string | null;
+}
+
 interface FeedStore {
   items: FeedItem[];
   snoozedItems: FeedItem[];
@@ -28,7 +34,7 @@ interface FeedStore {
   error: string | null;
   fetchStatus: 'idle' | 'running' | 'success' | 'error';
   analyzeStatus: 'idle' | 'running' | 'success' | 'error';
-  integrationStatus: { github: boolean, gmail: boolean, slack: boolean };
+  integrationStatus: { github: IntegrationDetail, gmail: IntegrationDetail, slack: IntegrationDetail };
   fetchItems: (userId: string) => Promise<void>;
   fetchSnoozedItems: (userId: string) => Promise<void>;
   fetchBriefing: (userId: string) => Promise<void>;
@@ -94,7 +100,11 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
   error: null,
   fetchStatus: 'idle',
   analyzeStatus: 'idle',
-  integrationStatus: { github: false, gmail: false, slack: false },
+  integrationStatus: { 
+    github: { connected: false }, 
+    gmail: { connected: false }, 
+    slack: { connected: false } 
+  },
 
   clearError: () => set({ error: null }),
 
@@ -126,9 +136,9 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
         tool_name: toolName
       });
       const currentStatus = { ...get().integrationStatus };
-      if (toolName === 'github') currentStatus.github = false;
-      if (toolName === 'gmail' || toolName === 'google') currentStatus.gmail = false;
-      if (toolName === 'slack') currentStatus.slack = false;
+      if (toolName === 'github') currentStatus.github = { connected: false };
+      if (toolName === 'gmail' || toolName === 'google') currentStatus.gmail = { connected: false };
+      if (toolName === 'slack') currentStatus.slack = { connected: false };
       set({ integrationStatus: currentStatus });
     } catch {
       set({ error: 'Failed to disconnect integration.' });

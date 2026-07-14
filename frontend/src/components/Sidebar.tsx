@@ -65,10 +65,19 @@ export function Sidebar() {
               className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <FaGithub size={18} />
-                <span>GitHub</span>
+                {integrationStatus.github.connected && integrationStatus.github.image_url ? (
+                  <img src={integrationStatus.github.image_url} alt="" className="w-5 h-5 rounded-full ring-1 ring-white/10" />
+                ) : (
+                  <FaGithub size={18} />
+                )}
+                <div className="flex flex-col text-left">
+                  <span className="text-sm font-medium">GitHub</span>
+                  {integrationStatus.github.connected && integrationStatus.github.name && (
+                    <span className="text-[10px] text-slate-500 truncate max-w-[120px] font-medium leading-none mt-0.5">@{integrationStatus.github.name}</span>
+                  )}
+                </div>
               </div>
-              <div className={`w-2 h-2 rounded-full ${integrationStatus.github ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
+              <div className={`w-2 h-2 rounded-full shrink-0 ${integrationStatus.github.connected ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
             </a>
             <a
               href="https://mail.google.com"
@@ -77,10 +86,19 @@ export function Sidebar() {
               className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <Mail size={18} />
-                <span>Gmail</span>
+                {integrationStatus.gmail.connected && integrationStatus.gmail.image_url ? (
+                  <img src={integrationStatus.gmail.image_url} alt="" className="w-5 h-5 rounded-full ring-1 ring-white/10" />
+                ) : (
+                  <Mail size={18} />
+                )}
+                <div className="flex flex-col text-left">
+                  <span className="text-sm font-medium">Gmail</span>
+                  {integrationStatus.gmail.connected && integrationStatus.gmail.name && (
+                    <span className="text-[10px] text-slate-500 truncate max-w-[120px] font-medium leading-none mt-0.5">{integrationStatus.gmail.name}</span>
+                  )}
+                </div>
               </div>
-              <div className={`w-2 h-2 rounded-full ${integrationStatus.gmail ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
+              <div className={`w-2 h-2 rounded-full shrink-0 ${integrationStatus.gmail.connected ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
             </a>
             <a
               href="https://slack.com"
@@ -89,10 +107,19 @@ export function Sidebar() {
               className="flex items-center justify-between px-3 py-2.5 rounded-xl border border-transparent hover:border-white/10 hover:bg-white/5 text-slate-400 hover:text-slate-200 transition-all duration-300 cursor-pointer"
             >
               <div className="flex items-center gap-3">
-                <MessageSquare size={18} />
-                <span>Slack</span>
+                {integrationStatus.slack.connected && integrationStatus.slack.image_url ? (
+                  <img src={integrationStatus.slack.image_url} alt="" className="w-5 h-5 rounded-full ring-1 ring-white/10" />
+                ) : (
+                  <MessageSquare size={18} />
+                )}
+                <div className="flex flex-col text-left">
+                  <span className="text-sm font-medium">Slack</span>
+                  {integrationStatus.slack.connected && integrationStatus.slack.name && (
+                    <span className="text-[10px] text-slate-500 truncate max-w-[120px] font-medium leading-none mt-0.5">{integrationStatus.slack.name}</span>
+                  )}
+                </div>
               </div>
-              <div className={`w-2 h-2 rounded-full ${integrationStatus.slack ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
+              <div className={`w-2 h-2 rounded-full shrink-0 ${integrationStatus.slack.connected ? 'bg-green-400 shadow-[0_0_8px_rgba(74,222,128,0.6)]' : 'bg-slate-600'}`}></div>
             </a>
           </nav>
         </div>
