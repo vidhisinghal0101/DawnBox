@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, BackgroundTasks, HTTPException
 import logging
 import traceback
+import httpx
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy import desc, or_
@@ -8,10 +9,39 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from database import get_db
-from models import Item, Summary, UserFeedback
+from models import Item, Summary, UserFeedback, Integration
 from agents.graph import run_pipeline, run_fetch_only, run_analyze_only
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+async def sync_resolution_to_provider(tool_name: str, external_id: str, access_token: str):
+    async with httpx.AsyncClient() as client:
+        try:
+            if tool_name == "github":
+                # GitHub: Mark single notification thread as read (PATCH /notifications/threads/{id})
+                url = f"https://api.github.com/notifications/threads/{external_id}"
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Accept": "application/vnd.github.v3+json"
+                }
+                resp = await client.patch(url, headers=headers)
+                logger.info(f"GitHub two-way sync response for thread {external_id}: {resp.status_code}")
+                
+            elif tool_name in ["google", "gmail"]:
+                # Gmail: Remove UNREAD label (marking it as read)
+                url = f"https://gmail.googleapis.com/gmail/v1/users/me/messages/{external_id}/modify"
+                headers = {
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json"
+                }
+                body = {
+                    "removeLabelIds": ["UNREAD"]
+                }
+                resp = await client.post(url, json=body, headers=headers)
+                logger.info(f"Gmail two-way sync response for message {external_id}: {resp.status_code}")
+        except Exception as e:
+            logger.error(f"Failed to sync resolution to {tool_name} for id {external_id}: {str(e)}")
 logger = logging.getLogger(__name__)
 
 @router.get("/items/{user_id}")
@@ -63,7 +93,7 @@ async def get_briefing(user_id: str, db: AsyncSession = Depends(get_db)):
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.put("/items/{item_id}/resolve")
-async def resolve_item(item_id: int, db: AsyncSession = Depends(get_db)):
+async def resolve_item(item_id: int, background_tasks: BackgroundTasks, db: AsyncSession = Depends(get_db)):
     try:
         result = await db.execute(select(Item).where(Item.id == item_id))
         item = result.scalars().first()
@@ -81,6 +111,26 @@ async def resolve_item(item_id: int, db: AsyncSession = Depends(get_db)):
                 action_taken="resolved_quickly"
             )
             db.add(feedback)
+            
+        # Get active integration for two-way sync
+        tool_names = ["google", "gmail"] if item.tool_name in ["google", "gmail"] else [item.tool_name]
+        int_result = await db.execute(
+            select(Integration).where(
+                Integration.user_id == item.user_id,
+                Integration.tool_name.in_(tool_names),
+                Integration.is_active == True
+            )
+        )
+        integration = int_result.scalars().first()
+        
+        # Trigger background api call to GitHub/Gmail if it is a real OAuth token
+        if integration and integration.access_token and not integration.access_token.startswith("mock_"):
+            background_tasks.add_task(
+                sync_resolution_to_provider, 
+                item.tool_name, 
+                item.external_id, 
+                integration.access_token
+            )
             
         await db.commit()
         return {"status": "success"}
