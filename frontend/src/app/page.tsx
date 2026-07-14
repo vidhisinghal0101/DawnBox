@@ -1,13 +1,15 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { FaGithub } from 'react-icons/fa';
 import { useFeedStore } from '../store';
 import { Sidebar } from '../components/Sidebar';
 import { ItemCard } from '../components/ItemCard';
 import { BriefingPanel } from '../components/BriefingPanel';
-import { Loader2, RefreshCw, Layers, CheckCircle2, AlertCircle, Sparkles } from 'lucide-react';
+import { Loader2, RefreshCw, Layers, CheckCircle2, AlertCircle, Sparkles, BrainCircuit, Mail, MessageSquare } from 'lucide-react';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -15,12 +17,7 @@ export default function Home() {
   const { items, snoozedItems, briefing, loading, error, fetchStatus, analyzeStatus, fetchItems, fetchSnoozedItems, fetchBriefing, triggerFetch, triggerAnalyze } = useFeedStore();
   const [activeTab, setActiveTab] = React.useState<'All' | 'Action Required' | 'FYI' | 'Ignore' | 'Snoozed'>('All');
 
-  useEffect(() => {
-    if (status === 'unauthenticated') {
-      router.push('/login');
-    }
-  }, [status, router]);
-
+  // Remove unauthenticated redirection to allow Google bot verification on '/'
   const userId = (session?.user as unknown as { id: string })?.id || "1";
 
   useEffect(() => {
@@ -39,10 +36,100 @@ export default function Home() {
     triggerAnalyze(userId);
   };
 
-  if (status === 'loading' || status === 'unauthenticated') {
+  if (status === 'loading') {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <Loader2 size={32} className="animate-spin text-zinc-500" />
+      </div>
+    );
+  }
+
+  if (status === 'unauthenticated') {
+    return (
+      <div className="min-h-screen bg-black text-slate-100 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+        {/* Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div className="w-full max-w-4xl z-10 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Left Column: Product Information & Compliance (Visible to Google Bot) */}
+          <div className="space-y-6 text-left">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-lg">
+                <BrainCircuit size={24} className="text-white" />
+              </div>
+              <span className="text-2xl font-bold tracking-tight bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+                DawnBox
+              </span>
+            </div>
+
+            <div className="space-y-4">
+              <h2 className="text-3xl font-extrabold text-white tracking-tight leading-tight">
+                Smart prioritization of your professional notifications.
+              </h2>
+              <p className="text-zinc-400 leading-relaxed text-sm">
+                DawnBox connects directly to your work tools to fetch, prioritize, and summarize notifications using AI. Keep your focus on what matters most.
+              </p>
+            </div>
+
+            {/* Feature Highlights */}
+            <div className="space-y-3 pt-2">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="text-indigo-400 mt-1 shrink-0" size={16} />
+                <p className="text-sm text-zinc-300"><strong>Unified Feed:</strong> GitHub updates, Gmail, and Slack mentions in one place.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="text-indigo-400 mt-1 shrink-0" size={16} />
+                <p className="text-sm text-zinc-300"><strong>AI Priority Scores:</strong> AI evaluates notifications and highlights critical action items.</p>
+              </div>
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="text-indigo-400 mt-1 shrink-0" size={16} />
+                <p className="text-sm text-zinc-300"><strong>Privacy First:</strong> Your credentials are encrypted and we do not share your inbox content.</p>
+              </div>
+            </div>
+
+            {/* Links for Google Verification */}
+            <div className="flex items-center gap-4 text-xs text-indigo-400 font-semibold pt-4">
+              <Link href="/privacy" className="hover:underline">Privacy Policy</Link>
+              <span className="text-zinc-700">•</span>
+              <Link href="/terms" className="hover:underline">Terms of Service</Link>
+            </div>
+          </div>
+
+          {/* Right Column: Login Panel */}
+          <div className="glass-panel rounded-2xl p-8 border border-white/10 backdrop-blur-xl shadow-2xl bg-zinc-900/40">
+            <h3 className="text-xl font-bold text-white mb-6 text-center">Get Started</h3>
+            
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => signIn('github', { callbackUrl: '/' }, { prompt: 'login' })}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-white text-black hover:bg-zinc-200 transition-all font-semibold rounded-xl"
+              >
+                <FaGithub size={18} className="text-black" />
+                <span className="text-sm">Continue with GitHub</span>
+              </button>
+
+              <button
+                onClick={() => signIn('google', { callbackUrl: '/' }, { prompt: 'select_account' })}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-zinc-900 text-white border border-white/10 hover:bg-zinc-800 transition-all font-semibold rounded-xl"
+              >
+                <Mail size={18} className="text-white" />
+                <span className="text-sm">Continue with Google</span>
+              </button>
+
+              <button
+                onClick={() => signIn('slack', { callbackUrl: '/' }, { prompt: 'select_account' })}
+                className="w-full flex items-center justify-center gap-3 px-6 py-3 bg-[#4A154B] text-white border border-white/10 hover:bg-[#3d113e] transition-all font-semibold rounded-xl"
+              >
+                <MessageSquare size={18} className="text-white" />
+                <span className="text-sm">Continue with Slack</span>
+              </button>
+            </div>
+
+            <p className="mt-6 text-center text-[10px] text-zinc-500">
+              By connecting your account, you authorize DawnBox to fetch and prioritize your notifications. You can disconnect at any time.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
