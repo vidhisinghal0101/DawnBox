@@ -53,13 +53,13 @@ export default function LoginPage() {
                 className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-blue-600/20 text-blue-400 border border-blue-500/30 hover:bg-blue-600/30 transition-all font-semibold rounded-xl group mt-4"
               >
                 <Terminal size={20} className="group-hover:-translate-y-0.5 transition-transform" />
-                <span>Developer Mock Login</span>
+                <span>Quick Mock Login</span>
               </button>
             )}
           </div>
           
           <div className="mt-6 text-center text-xs text-zinc-500">
-            By continuing, you agree to allow DawnBox to securely sync and prioritize your developer notifications.
+            By continuing, you agree to allow DawnBox to securely sync and prioritize your professional notifications.
           </div>
         </div>
       </div>

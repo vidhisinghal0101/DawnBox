@@ -1,4 +1,3 @@
-aiosqlite
 asyncpg
 annotated-doc
 annotated-types

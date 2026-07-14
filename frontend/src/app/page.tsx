@@ -83,7 +83,7 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <header className="flex justify-between items-center mb-8">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight mb-1 text-white">Developer Inbox</h1>
+              <h1 className="text-3xl font-bold tracking-tight mb-1 text-white">Inbox</h1>
               <p className="text-muted-foreground text-sm">Smart prioritization of your GitHub, Gmail and Slack notifications</p>
             </div>
 

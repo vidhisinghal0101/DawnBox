@@ -24,8 +24,8 @@ def summarize_data(state: AgentState):
         print("WARNING: GROQ_API_KEY is not set. Using mock summary.")
         return {"summary": "Good morning! You have a few mock notifications to look at today since your GROQ_API_KEY is missing."}
 
-    system_prompt = """You are an AI assistant generating a 'Morning Briefing' for a software engineer.
-You will be given a list of prioritized notifications from GitHub and Gmail.
+    system_prompt = """You are an AI assistant generating a 'Morning Briefing' for a busy professional.
+You will be given a list of prioritized notifications from GitHub, Slack, and Gmail.
 
 Write a concise, friendly summary (under 3 sentences) grouping related items.
 Focus ONLY on the most important things ("Action Required" or high priority).

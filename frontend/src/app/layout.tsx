@@ -6,8 +6,8 @@ import Providers from "../components/Providers";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DawnBox — AI-Powered Developer Dashboard",
-  description: "Unified intelligence dashboard that uses AI to prioritize your GitHub notifications and Gmail messages. Built with Next.js, FastAPI, and Gemini.",
+  title: "DawnBox — AI-Powered Inbox",
+  description: "Unified intelligence dashboard that uses AI to prioritize your GitHub notifications, Slack, and Gmail messages. Built with Next.js, FastAPI, and Llama.",
 };
 
 export default function RootLayout({
