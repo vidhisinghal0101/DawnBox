@@ -1,5 +1,5 @@
-import React from 'react';
-import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2, Check } from 'lucide-react';
+import React, { useState } from 'react';
+import { Mail, AlertTriangle, Info, ExternalLink, CheckCircle2, Check, Clock } from 'lucide-react';
 import { FaGithub } from 'react-icons/fa';
 import { formatDistanceToNow } from 'date-fns';
 import { FeedItem, useFeedStore } from '../store';
@@ -7,6 +7,8 @@ import { FeedItem, useFeedStore } from '../store';
 export function ItemCard({ item }: { item: FeedItem }) {
   const isGithub = item.tool_name === 'github';
   const resolveItem = useFeedStore(state => state.resolveItem);
+  const snoozeItem = useFeedStore(state => state.snoozeItem);
+  const [showSnooze, setShowSnooze] = useState(false);
   
   const getTagStyle = (tag: string) => {
     switch (tag) {
@@ -49,6 +51,28 @@ export function ItemCard({ item }: { item: FeedItem }) {
     resolveItem(item.id);
   };
 
+  const handleSnoozeToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setShowSnooze(!showSnooze);
+  };
+
+  const handleSnooze = (e: React.MouseEvent, option: string) => {
+    e.stopPropagation();
+    const date = new Date();
+    if (option === 'today') {
+      date.setHours(date.getHours() + 4);
+    } else if (option === 'tomorrow') {
+      date.setDate(date.getDate() + 1);
+      date.setHours(9, 0, 0, 0);
+    } else if (option === 'next_week') {
+      const daysUntilMonday = (8 - date.getDay()) % 7 || 7;
+      date.setDate(date.getDate() + daysUntilMonday);
+      date.setHours(9, 0, 0, 0);
+    }
+    snoozeItem(item.id, date.toISOString());
+    setShowSnooze(false);
+  };
+
   return (
     <div 
       onClick={handleClick}
@@ -84,13 +108,46 @@ export function ItemCard({ item }: { item: FeedItem }) {
               Score: {item.priority_score}/10
             </span>
             {!item.is_resolved ? (
-              <button 
-                onClick={handleResolve}
-                className="text-xs flex items-center gap-1.5 font-medium px-2 py-1.5 rounded-md bg-zinc-800 hover:bg-green-500/20 text-zinc-400 hover:text-green-400 transition-colors border border-zinc-700 hover:border-green-500/30"
-              >
-                <Check size={14} />
-                Mark as Done
-              </button>
+              <div className="flex items-center gap-2 relative">
+                <button 
+                  onClick={handleResolve}
+                  className="text-xs flex items-center gap-1.5 font-medium px-2 py-1.5 rounded-md bg-zinc-800 hover:bg-green-500/20 text-zinc-400 hover:text-green-400 transition-colors border border-zinc-700 hover:border-green-500/30"
+                >
+                  <Check size={14} />
+                  Mark as Done
+                </button>
+                <button 
+                  onClick={handleSnoozeToggle}
+                  className="text-xs flex items-center gap-1.5 font-medium px-2 py-1.5 rounded-md bg-zinc-800 hover:bg-yellow-500/20 text-zinc-400 hover:text-yellow-400 transition-colors border border-zinc-700 hover:border-yellow-500/30"
+                >
+                  <Clock size={14} />
+                  Snooze
+                </button>
+
+                {/* Snooze Dropdown */}
+                {showSnooze && (
+                  <div className="absolute right-0 top-full mt-1 w-48 bg-zinc-900 border border-zinc-800 rounded-md shadow-lg z-10 py-1 overflow-hidden">
+                    <button 
+                      onClick={(e) => handleSnooze(e, 'today')}
+                      className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                    >
+                      Later Today (In 4 hrs)
+                    </button>
+                    <button 
+                      onClick={(e) => handleSnooze(e, 'tomorrow')}
+                      className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                    >
+                      Tomorrow Morning (9 AM)
+                    </button>
+                    <button 
+                      onClick={(e) => handleSnooze(e, 'next_week')}
+                      className="w-full text-left px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+                    >
+                      Next Week (Mon 9 AM)
+                    </button>
+                  </div>
+                )}
+              </div>
             ) : (
               <span className="text-xs flex items-center gap-1.5 font-medium px-2 py-1 rounded-md bg-green-500/10 text-green-500 border border-green-500/20">
                 <CheckCircle2 size={14} />

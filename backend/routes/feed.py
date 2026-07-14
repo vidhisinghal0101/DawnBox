@@ -3,7 +3,9 @@ import logging
 import traceback
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy import desc
+from sqlalchemy import desc, or_
+from datetime import datetime
+from pydantic import BaseModel
 
 from database import get_db
 from models import Item, Summary
@@ -19,6 +21,7 @@ async def get_items(user_id: str, db: AsyncSession = Depends(get_db)):
         result = await db.execute(
             select(Item)
             .where(Item.user_id == user_id)
+            .where(or_(Item.snoozed_until == None, Item.snoozed_until <= datetime.utcnow()))
             .order_by(desc(Item.priority_score))
         )
         items = result.scalars().all()
@@ -55,6 +58,23 @@ async def resolve_item(item_id: int, db: AsyncSession = Depends(get_db)):
         return {"status": "success"}
     except Exception as e:
         logger.error(f"Error resolving item {item_id}: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+
+class SnoozeRequest(BaseModel):
+    snoozed_until: datetime
+
+@router.post("/items/{item_id}/snooze")
+async def snooze_item(item_id: int, req: SnoozeRequest, db: AsyncSession = Depends(get_db)):
+    try:
+        result = await db.execute(select(Item).where(Item.id == item_id))
+        item = result.scalars().first()
+        if not item:
+            raise HTTPException(status_code=404, detail="Item not found")
+        item.snoozed_until = req.snoozed_until
+        await db.commit()
+        return {"status": "success", "snoozed_until": item.snoozed_until}
+    except Exception as e:
+        logger.error(f"Error snoozing item {item_id}: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
 
 @router.post("/trigger-pipeline/{user_id}")

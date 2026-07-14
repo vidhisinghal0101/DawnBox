@@ -44,6 +44,7 @@ class Item(Base):
     ai_explanation = Column(String, nullable=True)
     
     is_resolved = Column(Boolean, default=False)
+    snoozed_until = Column(DateTime, nullable=True)
 
     user = relationship("User", back_populates="items")
 

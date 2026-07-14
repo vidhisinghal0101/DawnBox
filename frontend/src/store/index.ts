@@ -17,6 +17,7 @@ export interface FeedItem {
   timestamp: string;
   url: string;
   is_resolved: boolean;
+  snoozed_until?: string | null;
 }
 
 interface FeedStore {
@@ -35,6 +36,7 @@ interface FeedStore {
   connectIntegration: (userId: string, toolName: string) => Promise<void>;
   disconnectIntegration: (userId: string, toolName: string) => Promise<void>;
   resolveItem: (itemId: number) => Promise<void>;
+  snoozeItem: (itemId: number, snoozedUntil: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -217,4 +219,17 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       }));
     }
   },
+
+  snoozeItem: async (itemId: number, snoozedUntil: string) => {
+    // Optimistically update UI
+    set(state => ({
+      items: state.items.filter(item => item.id !== itemId)
+    }));
+    try {
+      await axios.post(`${API_BASE_URL}/feed/items/${itemId}/snooze`, { snoozed_until: snoozedUntil });
+    } catch (err) {
+      console.error('Failed to snooze item:', err);
+      // Let it fetch again to reset state
+    }
+  }
 }));
