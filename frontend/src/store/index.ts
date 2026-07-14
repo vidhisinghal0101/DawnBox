@@ -40,6 +40,7 @@ interface FeedStore {
   resolveItem: (itemId: number) => Promise<void>;
   snoozeItem: (itemId: number, snoozedUntil: string) => Promise<void>;
   unsnoozeItem: (itemId: number) => Promise<void>;
+  submitFeedback: (itemId: number, actionTaken: string) => Promise<void>;
   clearError: () => void;
 }
 
@@ -259,6 +260,14 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
       get().fetchSnoozedItems(userId);
     } catch (err) {
       console.error('Failed to unsnooze item:', err);
+    }
+  },
+
+  submitFeedback: async (itemId: number, actionTaken: string) => {
+    try {
+      await axios.post(`${API_BASE_URL}/feed/items/${itemId}/feedback`, { action_taken: actionTaken });
+    } catch (error) {
+      console.error('Failed to submit feedback:', error);
     }
   }
 }));

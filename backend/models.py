@@ -13,6 +13,7 @@ class User(Base):
     integrations = relationship("Integration", back_populates="user")
     items = relationship("Item", back_populates="user")
     summaries = relationship("Summary", back_populates="user")
+    feedbacks = relationship("UserFeedback", back_populates="user")
 
 class Integration(Base):
     __tablename__ = "integrations"
@@ -56,3 +57,15 @@ class Summary(Base):
     content = Column(Text)
 
     user = relationship("User", back_populates="summaries")
+
+class UserFeedback(Base):
+    __tablename__ = "user_feedbacks"
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(String, ForeignKey("users.id"))
+    tool_name = Column(String)
+    title = Column(String)
+    content = Column(Text)
+    action_taken = Column(String) # "opened_link", "resolved_quickly"
+    timestamp = Column(DateTime, default=datetime.datetime.utcnow)
+
+    user = relationship("User", back_populates="feedbacks")

@@ -38,7 +38,15 @@ def prioritize_data(state: AgentState):
 
     prioritized = []
 
-    system_prompt = """You are an expert prioritization AI.
+    # Build feedback learning context
+    feedback_context = ""
+    if getattr(state, 'feedback_history', None):
+        feedback_context = "\nCRITICAL: You must learn from the user's historical actions. The user took immediate action (opened links or resolved quickly) on the following notifications in the past:\n"
+        for fb in state.feedback_history:
+            feedback_context += f"- Notification Title: '{fb['title']}' | User Action: '{fb['action_taken']}'\n"
+        feedback_context += "\nRULE: If a new notification has a similar topic, sender, keyword, or context to any items the user previously took action on (for example, if they immediately opened a 'lunch' or 'pizza' email), you MUST elevate its score to 9 or 10 and set its tag to 'Action Required'. Adapt dynamically to their preference!\n"
+
+    system_prompt = f"""You are an expert prioritization AI.
 Analyze the provided items (emails/notifications) and score their importance from 1-10.
 
 Rules:
@@ -47,21 +55,21 @@ Rules:
 - 5-6: Good to know but not urgent (updates, newsletters from people you know)
 - 3-4: Low priority (automated notifications, social updates)
 - 1-2: Can ignore (promotional emails, spam, bulk newsletters)
-
+{feedback_context}
 Respond ONLY with a valid JSON object mapping the 'external_id' of each item to its score.
 Example format:
-{
-  "id_123": {
+{{
+  "id_123": {{
     "priority_score": 8,
     "priority_tag": "Action Required",
     "ai_explanation": "This email contains an urgent deadline."
-  },
-  "id_456": {
+  }},
+  "id_456": {{
     "priority_score": 2,
     "priority_tag": "Can Ignore",
     "ai_explanation": "This is a generic newsletter."
-  }
-}"""
+  }}
+}}"""
 
     # Build the payload, capping at 30 items to avoid Groq Free Tier TPM limits
     payload = []

@@ -9,6 +9,7 @@ export function ItemCard({ item }: { item: FeedItem }) {
   const resolveItem = useFeedStore(state => state.resolveItem);
   const snoozeItem = useFeedStore(state => state.snoozeItem);
   const unsnoozeItem = useFeedStore(state => state.unsnoozeItem);
+  const submitFeedback = useFeedStore(state => state.submitFeedback);
   const [showSnooze, setShowSnooze] = useState(false);
   
   const getTagStyle = (tag: string) => {
@@ -44,6 +45,7 @@ export function ItemCard({ item }: { item: FeedItem }) {
   };
 
   const handleClick = () => {
+    submitFeedback(item.id, 'opened_link');
     window.open(item.url, '_blank', 'noopener,noreferrer');
   };
 

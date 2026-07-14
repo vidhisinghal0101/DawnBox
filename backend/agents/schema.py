@@ -5,4 +5,5 @@ class AgentState(BaseModel):
     user_id: str
     fetched_items: List[dict] = Field(default_factory=list)
     prioritized_items: List[dict] = Field(default_factory=list)
+    feedback_history: List[dict] = Field(default_factory=list)
     summary: Optional[str] = None

@@ -9,7 +9,7 @@ import datetime
 # We need a way to run database operations async in the graph, or wrap it.
 from sqlalchemy import delete
 from database import AsyncSessionLocal
-from models import Item, Summary
+from models import Item, Summary, UserFeedback
 
 # Define the graph
 workflow = StateGraph(AgentState)
@@ -29,7 +29,21 @@ async def run_pipeline(user_id: str):
     """
     Runs the langgraph pipeline and saves results to the database.
     """
-    initial_state = AgentState(user_id=user_id)
+    async with AsyncSessionLocal() as session:
+        fb_result = await session.execute(
+            select(UserFeedback)
+            .where(UserFeedback.user_id == user_id)
+            .order_by(UserFeedback.timestamp.desc())
+            .limit(20)
+        )
+        feedbacks = fb_result.scalars().all()
+        feedback_history = [{
+            "title": fb.title,
+            "content": fb.content,
+            "action_taken": fb.action_taken
+        } for fb in feedbacks]
+
+    initial_state = AgentState(user_id=user_id, feedback_history=feedback_history)
     
     # Run the graph (using ainvoke because nodes are async)
     result = await app_graph.ainvoke(initial_state)
@@ -120,6 +134,19 @@ async def run_analyze_only(user_id: str):
         result = await session.execute(select(Item).where(Item.user_id == user_id))
         items = result.scalars().all()
         
+        fb_result = await session.execute(
+            select(UserFeedback)
+            .where(UserFeedback.user_id == user_id)
+            .order_by(UserFeedback.timestamp.desc())
+            .limit(20)
+        )
+        feedbacks = fb_result.scalars().all()
+        feedback_history = [{
+            "title": fb.title,
+            "content": fb.content,
+            "action_taken": fb.action_taken
+        } for fb in feedbacks]
+        
     if not items:
         print("No items found to analyze.")
         return
@@ -136,7 +163,13 @@ async def run_analyze_only(user_id: str):
             "timestamp": item.timestamp.isoformat()
         })
         
-    state = AgentState(user_id=user_id, fetched_items=fetched_items, prioritized_items=[], summary="")
+    state = AgentState(
+        user_id=user_id, 
+        fetched_items=fetched_items, 
+        prioritized_items=[], 
+        feedback_history=feedback_history,
+        summary=""
+    )
     
     # Run prioritize and summarize directly
     p_result = await asyncio.to_thread(prioritize_data, state)
