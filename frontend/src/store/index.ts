@@ -4,7 +4,7 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 
 export interface FeedItem {
-  id: number;
+  id: string; // Changed to string to use external_id directly
   user_id: string;
   external_id: string;
   tool_name: string;
@@ -37,12 +37,54 @@ interface FeedStore {
   triggerAnalyze: (userId: string) => Promise<void>;
   connectIntegration: (userId: string, toolName: string) => Promise<void>;
   disconnectIntegration: (userId: string, toolName: string) => Promise<void>;
-  resolveItem: (itemId: number) => Promise<void>;
-  snoozeItem: (itemId: number, snoozedUntil: string) => Promise<void>;
-  unsnoozeItem: (itemId: number) => Promise<void>;
-  submitFeedback: (itemId: number, actionTaken: string) => Promise<void>;
+  resolveItem: (itemId: string) => Promise<void>;
+  snoozeItem: (itemId: string, snoozedUntil: string) => Promise<void>;
+  unsnoozeItem: (itemId: string) => Promise<void>;
+  submitFeedback: (itemId: string, actionTaken: string) => Promise<void>;
   clearError: () => void;
 }
+
+// LocalStorage helpers to run operations completely in-browser
+const getLocalResolved = (): string[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    return JSON.parse(localStorage.getItem('dawnbox_resolved_ids') || '[]');
+  } catch {
+    return [];
+  }
+};
+
+const addLocalResolved = (externalId: string) => {
+  if (typeof window === 'undefined') return;
+  const resolved = getLocalResolved();
+  if (!resolved.includes(externalId)) {
+    resolved.push(externalId);
+    localStorage.setItem('dawnbox_resolved_ids', JSON.stringify(resolved));
+  }
+};
+
+const getLocalSnoozes = (): Record<string, string> => {
+  if (typeof window === 'undefined') return {};
+  try {
+    return JSON.parse(localStorage.getItem('dawnbox_snoozes') || '{}');
+  } catch {
+    return {};
+  }
+};
+
+const addLocalSnooze = (externalId: string, snoozedUntil: string) => {
+  if (typeof window === 'undefined') return;
+  const snoozes = getLocalSnoozes();
+  snoozes[externalId] = snoozedUntil;
+  localStorage.setItem('dawnbox_snoozes', JSON.stringify(snoozes));
+};
+
+const removeLocalSnooze = (externalId: string) => {
+  if (typeof window === 'undefined') return;
+  const snoozes = getLocalSnoozes();
+  delete snoozes[externalId];
+  localStorage.setItem('dawnbox_snoozes', JSON.stringify(snoozes));
+};
 
 export const useFeedStore = create<FeedStore>((set, get) => ({
   items: [],
@@ -57,21 +99,15 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
   clearError: () => set({ error: null }),
 
   fetchItems: async (userId: string) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/feed/items/${userId}`);
-      set({ items: response.data });
-    } catch (error) {
-      console.error('Failed to fetch items:', error);
-    }
+    // No-op: Data is kept in local state from triggerFetch response
   },
 
   fetchBriefing: async (userId: string) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/feed/briefing/${userId}`);
-      set({ briefing: response.data.content });
-    } catch (error) {
-      console.error('Failed to fetch briefing:', error);
-    }
+    // No-op: Summary is kept in local state from triggerAnalyze response
+  },
+
+  fetchSnoozedItems: async (userId: string) => {
+    // No-op: Snoozed items are updated dynamically in local state
   },
 
   fetchIntegrationStatus: async (userId: string) => {
@@ -89,7 +125,6 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
         user_id: userId,
         tool_name: toolName
       });
-      // Optimistically update the status locally
       const currentStatus = { ...get().integrationStatus };
       if (toolName === 'github') currentStatus.github = false;
       if (toolName === 'gmail' || toolName === 'google') currentStatus.gmail = false;
@@ -103,62 +138,71 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
   connectIntegration: async (userId: string, toolName: string) => {
     try {
       await axios.post(`${API_BASE_URL}/auth/connect-tool`, { user_id: userId, tool_name: toolName });
-      // Refresh status after connection
       await get().fetchIntegrationStatus(userId);
     } catch (error) {
       console.error(`Failed to connect ${toolName}:`, error);
     }
   },
 
-  fetchSnoozedItems: async (userId: string) => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/feed/items/${userId}/snoozed`);
-      set({ snoozedItems: response.data });
-    } catch (err) {
-      console.error('Failed to fetch snoozed items:', err);
-    }
-  },
-
   triggerFetch: async (userId: string) => {
     set({ loading: true, error: null, fetchStatus: 'running' });
     try {
-      await axios.post(`${API_BASE_URL}/feed/fetch-data/${userId}`);
+      const response = await axios.post(`${API_BASE_URL}/feed/fetch-data/${userId}`);
+      const rawItems = response.data.items || [];
       
-      let attempts = 0;
-      const maxAttempts = 10;
-      
-      const poll = async () => {
-        attempts++;
-        try {
-          const itemsRes = await axios.get(`${API_BASE_URL}/feed/items/${userId}`);
-          const newItems = itemsRes.data;
-          const currentItems = get().items;
-          
-          const hasNewData = newItems.length !== currentItems.length || 
-            (newItems.length > 0 && currentItems.length > 0 && newItems[0]?.id !== currentItems[0]?.id);
-          
-          if (hasNewData || attempts >= maxAttempts) {
-            set({ 
-              items: newItems, 
-              loading: false, 
-              fetchStatus: hasNewData ? 'success' : 'success'
-            });
-            setTimeout(() => set({ fetchStatus: 'idle' }), 3000);
+      const resolvedIds = getLocalResolved();
+      const snoozes = getLocalSnoozes();
+      const now = new Date();
+
+      // Map raw items and filter out resolved/snoozed ones
+      const mappedItems: FeedItem[] = [];
+      const snoozedItems: FeedItem[] = [];
+
+      rawItems.forEach((it: any) => {
+        const item: FeedItem = {
+          id: it.external_id, // Use external_id as primary key
+          user_id: userId,
+          external_id: it.external_id,
+          tool_name: it.tool_name,
+          title: it.title,
+          content: it.content,
+          author: it.author,
+          timestamp: it.timestamp,
+          url: it.url,
+          priority_score: it.priority_score || 0,
+          priority_tag: it.priority_tag || 'Uncategorized',
+          ai_explanation: it.ai_explanation || 'Pending AI Analysis',
+          is_resolved: resolvedIds.includes(it.external_id)
+        };
+
+        if (item.is_resolved) {
+          return;
+        }
+
+        const snoozedUntilStr = snoozes[it.external_id];
+        if (snoozedUntilStr) {
+          const snoozedUntil = new Date(snoozedUntilStr);
+          if (snoozedUntil > now) {
+            item.snoozed_until = snoozedUntilStr;
+            snoozedItems.push(item);
+            return;
           } else {
-            setTimeout(poll, 3000);
-          }
-        } catch {
-          if (attempts < maxAttempts) {
-            setTimeout(poll, 3000);
-          } else {
-            set({ loading: false, fetchStatus: 'error', error: 'Fetch timed out. Please try again.' });
-            setTimeout(() => set({ fetchStatus: 'idle', error: null }), 5000);
+            removeLocalSnooze(it.external_id);
           }
         }
-      };
-      
-      setTimeout(poll, 4000);
-    } catch {
+
+        mappedItems.push(item);
+      });
+
+      set({ 
+        items: mappedItems, 
+        snoozedItems,
+        loading: false, 
+        fetchStatus: 'success'
+      });
+      setTimeout(() => set({ fetchStatus: 'idle' }), 3000);
+    } catch (err) {
+      console.error(err);
       set({ error: 'Failed to trigger fetch.', loading: false, fetchStatus: 'error' });
       setTimeout(() => set({ fetchStatus: 'idle', error: null }), 5000);
     }
@@ -167,108 +211,87 @@ export const useFeedStore = create<FeedStore>((set, get) => ({
   triggerAnalyze: async (userId: string) => {
     set({ loading: true, error: null, analyzeStatus: 'running' });
     try {
-      await axios.post(`${API_BASE_URL}/feed/analyze-data/${userId}`);
+      const response = await axios.post(`${API_BASE_URL}/feed/analyze-data/${userId}`, {
+        items: get().items
+      });
       
-      let attempts = 0;
-      const maxAttempts = 10;
-      
-      const poll = async () => {
-        attempts++;
-        try {
-          const itemsRes = await axios.get(`${API_BASE_URL}/feed/items/${userId}`);
-          const briefingRes = await axios.get(`${API_BASE_URL}/feed/briefing/${userId}`);
-          
-          const newItems = itemsRes.data;
-          const newBriefing = briefingRes.data.content;
-          const currentBriefing = get().briefing;
-          
-          const hasNewData = newBriefing !== currentBriefing || 
-            (newItems.length > 0 && newItems[0]?.priority_tag !== 'Uncategorized');
-          
-          if (hasNewData || attempts >= maxAttempts) {
-            set({ 
-              items: newItems, 
-              briefing: newBriefing, 
-              loading: false, 
-              analyzeStatus: hasNewData ? 'success' : 'success'
-            });
-            setTimeout(() => set({ analyzeStatus: 'idle' }), 3000);
-          } else {
-            setTimeout(poll, 3000);
-          }
-        } catch {
-          if (attempts < maxAttempts) {
-            setTimeout(poll, 3000);
-          } else {
-            set({ loading: false, analyzeStatus: 'error', error: 'Analysis timed out. Please try again.' });
-            setTimeout(() => set({ analyzeStatus: 'idle', error: null }), 5000);
-          }
-        }
-      };
-      
-      setTimeout(poll, 4000);
-    } catch {
+      const analyzedItems = response.data.items || [];
+      const summary = response.data.summary || '';
+
+      set({ 
+        items: analyzedItems.map((it: any) => ({
+          ...it,
+          id: it.external_id // Ensure id matches external_id
+        })), 
+        briefing: summary, 
+        loading: false, 
+        analyzeStatus: 'success'
+      });
+      setTimeout(() => set({ analyzeStatus: 'idle' }), 3000);
+    } catch (err) {
+      console.error(err);
       set({ error: 'Failed to trigger analysis.', loading: false, analyzeStatus: 'error' });
       setTimeout(() => set({ analyzeStatus: 'idle', error: null }), 5000);
     }
   },
 
-  resolveItem: async (itemId: number) => {
+  resolveItem: async (itemId: string) => {
+    const targetItem = get().items.find(item => item.id === itemId);
+    if (!targetItem) return;
+
     // Optimistically update UI
     set(state => ({
-      items: state.items.map(item => 
-        item.id === itemId ? { ...item, is_resolved: true } : item
-      )
+      items: state.items.filter(item => item.id !== itemId)
     }));
+    addLocalResolved(targetItem.external_id);
 
     try {
-      await axios.put(`${API_BASE_URL}/feed/items/${itemId}/resolve`);
+      await axios.put(`${API_BASE_URL}/feed/resolve`, {
+        user_id: targetItem.user_id,
+        tool_name: targetItem.tool_name,
+        external_id: targetItem.external_id,
+        title: targetItem.title,
+        content: targetItem.content,
+        timestamp: targetItem.timestamp
+      });
     } catch (err) {
-      // Revert if failed
       console.error('Failed to resolve item:', err);
-      set(state => ({
-        items: state.items.map(item => 
-          item.id === itemId ? { ...item, is_resolved: false } : item
-        )
-      }));
     }
   },
 
-  snoozeItem: async (itemId: number, snoozedUntil: string) => {
+  snoozeItem: async (itemId: string, snoozedUntil: string) => {
     const targetItem = get().items.find(item => item.id === itemId);
-    
+    if (!targetItem) return;
+
     set(state => ({
       items: state.items.filter(item => item.id !== itemId),
-      snoozedItems: targetItem 
-        ? [...state.snoozedItems, { ...targetItem, snoozed_until: snoozedUntil }] 
-        : state.snoozedItems
+      snoozedItems: [...state.snoozedItems, { ...targetItem, snoozed_until: snoozedUntil }]
     }));
-    try {
-      await axios.post(`${API_BASE_URL}/feed/items/${itemId}/snooze`, { snoozed_until: snoozedUntil });
-    } catch (err) {
-      console.error('Failed to snooze item:', err);
-    }
+    addLocalSnooze(targetItem.external_id, snoozedUntil);
   },
 
-  unsnoozeItem: async (itemId: number) => {
+  unsnoozeItem: async (itemId: string) => {
     const targetItem = get().snoozedItems.find(item => item.id === itemId);
-    
+    if (!targetItem) return;
+
     set(state => ({
       snoozedItems: state.snoozedItems.filter(item => item.id !== itemId),
-      items: targetItem 
-        ? [...state.items, { ...targetItem, snoozed_until: null }] 
-        : state.items
+      items: [...state.items, { ...targetItem, snoozed_until: null }]
     }));
-    try {
-      await axios.post(`${API_BASE_URL}/feed/items/${itemId}/unsnooze`);
-    } catch (err) {
-      console.error('Failed to unsnooze item:', err);
-    }
+    removeLocalSnooze(targetItem.external_id);
   },
 
-  submitFeedback: async (itemId: number, actionTaken: string) => {
+  submitFeedback: async (itemId: string, actionTaken: string) => {
+    const targetItem = get().items.find(item => item.id === itemId);
+    if (!targetItem) return;
     try {
-      await axios.post(`${API_BASE_URL}/feed/items/${itemId}/feedback`, { action_taken: actionTaken });
+      await axios.post(`${API_BASE_URL}/feed/items/feedback`, {
+        user_id: targetItem.user_id,
+        tool_name: targetItem.tool_name,
+        title: targetItem.title,
+        content: targetItem.content,
+        action_taken: actionTaken
+      });
     } catch (error) {
       console.error('Failed to submit feedback:', error);
     }
