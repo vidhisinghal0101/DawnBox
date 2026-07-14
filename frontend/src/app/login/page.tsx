@@ -24,7 +24,7 @@ export default function LoginPage() {
 
           <div className="flex flex-col gap-3">
             <button
-              onClick={() => signIn('github', { callbackUrl: '/' }, { prompt: 'select_account' })}
+              onClick={() => signIn('github', { callbackUrl: '/' }, { prompt: 'login' })}
               className="w-full flex items-center justify-center gap-3 px-6 py-3.5 bg-white text-black hover:bg-zinc-200 transition-all font-semibold rounded-xl shadow-[0_0_15px_rgba(255,255,255,0.1)] group"
             >
               <FaGithub size={20} className="text-black group-hover:-translate-y-0.5 transition-transform" />
