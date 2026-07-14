@@ -170,11 +170,11 @@ export default function Home() {
                     <button
                       onClick={() => setActiveTab('FYI')}
                       className={`px-4 py-2 text-xs font-semibold rounded-xl border transition-all duration-300 flex items-center gap-2 ${activeTab === 'FYI'
-                        ? 'bg-blue-500/20 border-blue-500/50 text-blue-300 shadow-[0_0_15px_rgba(59,130,246,0.15)]'
-                        : 'bg-white/5 border-white/5 text-slate-400 hover:text-blue-300 hover:bg-blue-500/10 hover:border-blue-500/30'
+                        ? 'bg-yellow-500/20 border-yellow-500/50 text-yellow-300 shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                        : 'bg-white/5 border-white/5 text-slate-400 hover:text-yellow-300 hover:bg-yellow-500/10 hover:border-yellow-500/30'
                         }`}
                     >
-                      <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] ${activeTab === 'FYI' ? 'bg-blue-400' : 'bg-blue-500/50'}`}></div>
+                      <div className={`w-1.5 h-1.5 rounded-full shadow-[0_0_8px_currentColor] ${activeTab === 'FYI' ? 'bg-yellow-400' : 'bg-yellow-500/50'}`}></div>
                       FYI ({activeItems.filter(i => i.priority_tag === 'FYI').length})
                     </button>
 
