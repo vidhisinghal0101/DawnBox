@@ -87,8 +87,8 @@ async def fetch_data(state: AgentState):
             try:
                 print(f"CALLING GMAIL API with token: {gmail_int.access_token[:20]}...")
                 headers = {"Authorization": f"Bearer {gmail_int.access_token}"}
-                # Smart Query: Exclude common noise categories
-                query = "-category:promotions -category:social -category:updates -category:forums"
+                # Query: Retrieve all unread emails from the inbox
+                query = "is:unread"
                 async with httpx.AsyncClient() as client:
                     resp = await client.get(
                         f"https://gmail.googleapis.com/gmail/v1/users/me/messages?maxResults=50&q={query}", 
