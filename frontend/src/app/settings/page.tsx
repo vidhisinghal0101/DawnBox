@@ -2,7 +2,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useSession } from 'next-auth/react';
+import { useSession, signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '../../components/Sidebar';
 import { useFeedStore } from '../../store';
@@ -125,7 +125,15 @@ export default function SettingsPage() {
                     </div>
                     <div className="flex items-center gap-3">
                       <button 
-                        onClick={() => isConnected ? disconnectIntegration(userId, integration.id) : connectIntegration(userId, integration.id)}
+                        onClick={() => {
+                          if (isConnected) {
+                            disconnectIntegration(userId, integration.id);
+                          } else {
+                            // Map 'gmail' integration ID to NextAuth's 'google' provider ID
+                            const providerId = integration.id === 'gmail' ? 'google' : integration.id;
+                            signIn(providerId, { callbackUrl: '/settings' });
+                          }
+                        }}
                         className={`px-4 py-2 text-xs font-semibold rounded-lg transition-all duration-300 border ${
                           isConnected 
                             ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20' 
